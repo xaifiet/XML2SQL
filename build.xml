@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Xml2Sql" basedir=".">
 
+    <property name="build.dir" location="dist"/>
+    <property file="build/build.properties"/>
+
+    <target name="infos">
+        <echo message="BUILD INFORMATIONS"/>
+        <echo message="-------------------------"/>
+        <echo message="version.major    : ${version.major}"/>
+        <echo message="version.minor    : ${version.minor}"/>
+        <echo message="version.release  : ${version.release}"/>
+        <echo message="version.alias    : ${version.alias}"/>
+        <echo message="version.complete : ${version.complete}"/>
+    </target>
+
     <target name="lint">
         <apply executable="php" failonerror="true">
             <arg value="-l" />
@@ -16,6 +29,12 @@
                 <include name="**/*.php" />
             </fileset>
         </apply>
+    </target>
+
+    <target name="doxygen">
+        <exec executable="doxygen" failonerror="true">
+            <arg value="${basedir}/build/Doxyfile" />
+        </exec>
     </target>
 
     <target name="check" depends="lint,phpcs" />
