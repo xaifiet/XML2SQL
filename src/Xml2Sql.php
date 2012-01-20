@@ -18,18 +18,18 @@
  * @since     File available since Release 0.1
  */
 
-    /**
-     * Autoload function
-     *
-     * This function load classes on the go by search in classes directory
-     *
-     * @param string $class Class name
-     *
-     * @return void
-     *
-     * @since 0.1
-     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
-     */
+/**
+ * Autoload function
+ *
+ * This function load classes on the go by search in classes directory
+ *
+ * @param string $class Class name
+ *
+ * @return void
+ *
+ * @since 0.1
+ * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+ */
 function __autoload($class)
 {
     include 'classes/'.$class.'.class.php';

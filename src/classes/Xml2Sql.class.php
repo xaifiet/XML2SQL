@@ -51,13 +51,16 @@ class Xml2Sql
     {
         $xml = new XmlParser($convert);
 
+        // Databases connection
+        $dbh = new DatabaseHandlers();
         $dbs = $xml->getXPathElements('/xml/databases/database');
         foreach ($dbs as $db) {
             $tag = $xml->getTag($db);
-            $test = new DatabaseQuery($tag->attributes);
+            $test = $dbh->addDatabase($tag->attributes->name, $tag->attributes);
         }
-    }
 
+
+    }
 
 
 }

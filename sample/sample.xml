@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <xml pouet="toto">
     <databases>
-        <database id="sample" pilote="pgsql" host="localhost" port="5432" dbname="Xml2Sql" user="pgadm" password="Pgadm" />
+        <database name="sample1" pilote="pgsql" host="localhost" port="5432" dbname="Sample1" user="pgadm" password="Pgadm" />
+        <database name="sample2" pilote="pgsql" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" />
     </databases>
     <files>
         <file id="users" path="xml/" name="users.xml" />
