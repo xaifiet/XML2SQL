@@ -40,6 +40,15 @@ class DatabaseObject
     protected static $increments;
 
     /**
+     * Variable containing name of the database handler
+     *
+     * @var string
+     *
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected $database;
+
+    /**
      * Variable containing name of the table
      *
      * @var string
@@ -80,8 +89,9 @@ class DatabaseObject
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function __construct($table)
+    public function __construct($database, $table)
     {
+        $this->database   = $database;
         $this->table      = $table;
         $this->ids        = array();
         self::$increments = is_null(self::$increments) ? array() : self::$increments;
@@ -214,7 +224,8 @@ class DatabaseObject
      */
     public function save()
     {
-        $this->serialize();
+        $dbh = DatabaseHandlers::getInstance();
+        $dbh->insupSQL($this->database, 'insert', $this->table, $this->fields);
     }
 
 }

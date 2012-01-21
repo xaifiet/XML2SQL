@@ -40,7 +40,7 @@ class XmlParser
      *
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    protected $dom;
+    protected $files;
 
     /**
      * XPath of the XML
@@ -54,39 +54,71 @@ class XmlParser
     /**
      * Class constructor
      *
-     * This function initiate the XML container by :
-     * - Checking the configuration file (exist, readable)
-     * - Loading the XML and check his validity
-     *
-     * @param string $file Configuration file path
+     * The constructor initilize files value
      *
      * @return void
      *
+     * @throw Exception File name already used
      * @throw Exception Inexistant or unreadable file
      * @throw Exception Load xml file failed
      *
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function __construct($file)
+    public function __construct()
     {
+        $this->files = new StdClass();
+    }
+
+    /**
+     * Class constructor
+     *
+     * This function initiate the XML container by :
+     * - Checking the configuration file (exist, readable)
+     * - Loading the XML and check his validity
+     *
+     * @param string $fname Name of the file handle
+     * @param string $path  Configuration file path
+     *
+     * @return void
+     *
+     * @throw Exception File name already used
+     * @throw Exception Inexistant or unreadable file
+     * @throw Exception Load xml file failed
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    public function loadFile($fname, $path)
+    {
+        // Check if the name is available
+        if (isset($this->files->$fname)) {
+            throw new Exception('File name already used');
+        }
+
+        // Instantiate the new file handle
+        $newfile = new StdClass();
+        $newfile->path = $path;
+
         // Check the read access to the xml file
-        if (!is_readable($file)) {
-            throw new Exception('Inexistant or unreadable file: '.$file);
+        if (!is_readable($newfile->path)) {
+            throw new Exception('Inexistant or unreadable file: '.$newfile->path);
         }
 
         // Load the xml file into the dom
-        $dom = new DOMDocument();
-        if (!$dom->load($file)) {
-            throw new Exception('Load xml file failed : '.$file);
+        $newfile->dom = new DOMDocument();
+        if (!$newfile->dom->load($newfile->path)) {
+            throw new Exception('Load xml file failed : '.$newfile->filepath);
         }
-        $this->dom = $dom;
 
         // Load the XPath
-        $this->xpath = new DOMXPath($this->dom);
+        $newfile->xpath = new DOMXPath($newfile->dom);
         // Load php function for XPath
-        $this->xpath->registerNamespace('php', 'http://php.net/xpath');
-        $this->xpath->registerPHPFunctions();
+        $newfile->xpath->registerNamespace('php', 'http://php.net/xpath');
+        $newfile->xpath->registerPHPFunctions();
+
+        // Insert the new filehandle in the class files
+        $this->files->$fname = $newfile;
     }
 
     /**
@@ -112,6 +144,7 @@ class XmlParser
      *
      * This function search xpath elements in Document or node id specified
      *
+     * @param string     $fname Name of the file handle
      * @param string     $xpath XPath search string
      * @param DomElement $node  Root search node
      *
@@ -120,18 +153,34 @@ class XmlParser
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function getXPathElements($xpath, $node = null)
+    public function getXPathElements($fname, $xpath, $node = null)
     {
+        if (!isset($this->files->$fname)) {
+            throw new Exception('No file handle for this name');
+        }
         if (is_null($node)) {
-            $elements = $this->xpath->query($xpath);
+            $elements = $this->files->$fname->xpath->query($xpath);
         } else {
-            $elements = $this->xpath->query($path, $node);
+            $elements = $this->files->$fname->xpath->query($xpath, $node);
         }
         $res = array();
         foreach ($elements as $element) {
             $res[] = $element;
         }
         return $res;
+    }
+
+    public function getXPathValue($fname, $path, $node) {
+        $tmp = $this->getXPathElements($fname, $path, $node);
+        if (!count($tmp)) {
+            $this->writeLog(__FUNCTION__, 'MESSAGE_007', array($path));
+            return false;
+        }
+        else if (count($tmp) > 1) {
+            $this->writeLog(__FUNCTION__, 'MESSAGE_008', array($path));
+            return false;
+        }
+        return $tmp[0]->value;
     }
 
 

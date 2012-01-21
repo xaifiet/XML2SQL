@@ -44,8 +44,8 @@ if (!$convert) {
     exit(1);
 }
 
-$xml2sql = new Xml2Sql($convert);
-//$xml2sql->convert();
+$xml2sql = new Xml2Sql();
+$xml2sql->translate($convert);
 
 exit(0);
 

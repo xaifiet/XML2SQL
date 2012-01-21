@@ -5,7 +5,17 @@
         <database name="sample2" pilote="pgsql" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" />
     </databases>
     <files>
-        <file id="users" path="xml/" name="users.xml" />
-        <file id="reference" path="xml/" name="ref.xml" />
+        <file name="users" path="/home/xadubreu/Projects/Xml2Sql/sample/users.xml" delete="false" />
+        <file name="reference" path="/home/xadubreu/Projects/Xml2Sql/sample/ref.xml" delete="false" />
     </files>
+    <translations>
+        <translation name="Users" file="users" xpath="/xml/user">
+            <object-create name="user" database="sample1" table="users" />
+                <object-value-xml name="user" field="iduser" xpath="@id" />
+                <object-value-xml name="user" field="login" xpath="@login" />
+                <object-value-xml name="user" field="firstname" xpath="@firstname" />
+                <object-value-xml name="user" field="lastname" xpath="@lastname" />
+            <object-save name="user" />
+        </translation>
+    </translations>
 </xml>

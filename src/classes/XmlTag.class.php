@@ -166,6 +166,11 @@ class XmlTag
     {
         $this->children[] = $child;
     }
+    
+    public function getChildren()
+    {
+        return $this->children;
+    }
 
 }
 
