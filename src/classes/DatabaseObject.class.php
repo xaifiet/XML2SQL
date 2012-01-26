@@ -63,7 +63,7 @@ class DatabaseObject
      * @var array
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    protected $ids;
+    protected $id;
 
     /**
      * Variable containing the list of the fields and their value
@@ -74,6 +74,24 @@ class DatabaseObject
     protected $fields;
 
     /**
+     * Variable containing the list of the distincts fields
+     *
+     * This list will be use to insert or update databases rows
+     *
+     * @var array
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected $distincts;
+
+    /**
+     * Variable containing the list of the children
+     *
+     * @var array
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected $children;
+
+    /**
      * Constructor of the object
      *
      * The constructor initiate the differentes variables of the object:
@@ -82,7 +100,8 @@ class DatabaseObject
      * - The list of increments (if not alreadey initiated)
      * - The list of fields
      *
-     * @param string $table Name of the SQL table
+     * @param string $database Name of the database
+     * @param string $table    Name of the SQL table
      *
      * @return void
      *
@@ -93,9 +112,11 @@ class DatabaseObject
     {
         $this->database   = $database;
         $this->table      = $table;
-        $this->ids        = array();
+        $this->id         = null;
+        $this->distincts  = array();
         self::$increments = is_null(self::$increments) ? array() : self::$increments;
         $this->fields     = array();
+        $this->children   = array();
     }
 
 
@@ -143,23 +164,33 @@ class DatabaseObject
      * this function is used to define an ID for the object
      *
      * @param string $field ID name
-     * @param string $value ID value (null by default)
      *
      * @return void
      *
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function setID($field, $value = null)
+    public function setID($field)
     {
-        $this->ids[$field]['field'] = $field;
-        if (is_null($value)) {
-            if (!isset(self::$increments[$this->table])) {
-                self::$increments[$this->table] = 0;
-            }
-            $this->ids[$field]['value'] = self::$increments[$this->table]++;
-        } else {
-            $this->ids[$field]['value'] = $value;
+        $this->id = $field;
+    }
+
+    /**
+     * Distincts field setter
+     *
+     * this function set the distinct field list for updating or insering objects
+     *
+     * @param string $field Name of the field
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    public function addDistinct($field)
+    {
+        if (!in_array($field, $this->distincts)) {
+            $this->distincts[$field] = "";
         }
     }
 
@@ -173,21 +204,30 @@ class DatabaseObject
      * Those links are declared with this function
      * An id must have been set to declare a link by using setID() function
      *
-     * @param string $id      Name of an existing ID of this object
-     * @param string $table   Name of the foreign table
-     * @param string $field   Name of the object ID in foreign table
-     * @param string $foreign Name of the foreign field on foreign table
-     * @param string $value   Value of the foreign field
+     * @param StdClass $object   Object of the child
+     * @param string   $table    Name of the foreign table
+     * @param string   $field    Name of the object ID in foreign table
+     * @param string   $foreign  Name of the foreign field on foreign table
+     * @param string   $tField   Name of the link table field
+     * @param string   $tForeign Name of the link table foreign field
      *
      * @return void
-     *
      *
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function setLink($id, $table, $field, $foreign, $value)
+    public function addChild($object, $table, $field, $foreign, $tField, $tForeign)
     {
-        
+        $child = new StdClass();
+
+        $child->object   = $object;
+        $child->table    = $table;
+        $child->field    = $field;
+        $child->foreign  = $foreign;
+        $child->tField   = $tField;
+        $child->tForeign = $tForeign;
+
+        $this->children[] = $child;
     }
 
     /**
@@ -219,13 +259,67 @@ class DatabaseObject
      *
      * @return void
      *
+     * @throw Exception No field for this distinct
+     *
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
     public function save()
     {
-        $dbh = DatabaseHandlers::getInstance();
-        $dbh->insupSQL($this->database, 'insert', $this->table, $this->fields);
+        // ID serach and set
+        // 
+        $flgInsert = true;
+        if (!is_null($this->id)) {
+            $serialize = $this->serialize();
+            $count = 0;
+            foreach (self::$increments as $serial) {
+                if ($serialize == $serial) {
+                    $this->fields[$this->id] = $count;
+                    $flgInsert = false;
+                }
+                $count++;
+            }
+            if ($flgInsert) {
+                $this->fields[$this->id] = $count;
+                self::$increments[] = $serialize;
+            }
+        }
+
+        if ($flgInsert) {
+            // Distincts getter from fields
+            foreach ($this->distincts as $key => $distinct) {
+                if (isset($this->fields[$key])) {
+                    $this->distincts[$key] = $this->fields[$key];
+                } else {
+                    throw new Exception('No field for this distinct');
+                }
+            }
+
+            // Database insertion or update
+            $dbh = DatabaseHandlers::getInstance();
+            $dbh->insupSQL(
+                $this->database, 'both', $this->table,
+                $this->fields, $this->distincts
+            );
+        }
+
+        // Children save
+        foreach ($this->children as $child) {
+            $child->object->save();
+
+            $link = new DatabaseObject($this->database, $child->table);
+
+            $tField          = $child->tField;
+            $field           = $child->field;
+            $link->$tField   = $this->$field;
+
+            $tForeign        = $child->tForeign;
+            $foreign         = $child->foreign;
+            $link->$tForeign = $child->object->$foreign;
+
+            $link->save();
+        }
+
     }
 
 }

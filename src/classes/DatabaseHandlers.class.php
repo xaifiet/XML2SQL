@@ -529,7 +529,7 @@ class DatabaseHandlers
                     $action = 'insert';
                 }
             } else {
-                return false;
+                $action = 'insert';
             }
         }
         $this->addquote($dbname, $values);
@@ -583,7 +583,6 @@ class DatabaseHandlers
         if (count($filter)) {
             $request .= ' WHERE '.implode(' AND ', $filter);
         }
-        echo $request.chr(10);
         return $this->execSql($dbname, $request);
     }
 

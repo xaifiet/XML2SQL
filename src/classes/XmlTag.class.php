@@ -166,7 +166,17 @@ class XmlTag
     {
         $this->children[] = $child;
     }
-    
+
+    /**
+     * Get children function
+     *
+     * This function return children of the tag
+     *
+     * @return array Children list
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function getChildren()
     {
         return $this->children;

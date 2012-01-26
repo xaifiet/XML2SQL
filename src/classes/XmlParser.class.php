@@ -170,14 +170,28 @@ class XmlParser
         return $res;
     }
 
-    public function getXPathValue($fname, $path, $node) {
-        $tmp = $this->getXPathElements($fname, $path, $node);
+    /**
+     * XPath value getter function
+     *
+     * This function the value from an xpath. If the xpath returns no result or more
+     * than one, false will be returned
+     *
+     * @param string     $fname Name of the file handle
+     * @param string     $xpath XPath search string
+     * @param DomElement $node  Root search node
+     *
+     * @return mixed   Value of the XPath
+     * @return boolean False if no value
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    public function getXPathValue($fname, $xpath, $node)
+    {
+        $tmp = $this->getXPathElements($fname, $xpath, $node);
         if (!count($tmp)) {
-            $this->writeLog(__FUNCTION__, 'MESSAGE_007', array($path));
             return false;
-        }
-        else if (count($tmp) > 1) {
-            $this->writeLog(__FUNCTION__, 'MESSAGE_008', array($path));
+        } else if (count($tmp) > 1) {
             return false;
         }
         return $tmp[0]->value;

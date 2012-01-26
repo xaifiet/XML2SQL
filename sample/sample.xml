@@ -1,13 +1,18 @@
 <?xml version="1.0"?>
 <xml pouet="toto">
     <databases>
-        <database name="sample1" pilote="pgsql" host="localhost" port="5432" dbname="Sample1" user="pgadm" password="Pgadm" />
-        <database name="sample2" pilote="pgsql" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" />
+        <database name="sample1" pilote="pgsql" host="localhost" port="5432" dbname="Sample1" user="pgadm" password="Pgadm" transaction="true" />
+        <database name="sample2" pilote="pgsql" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" transaction="true" />
     </databases>
     <files>
         <file name="users" path="/home/xadubreu/Projects/Xml2Sql/sample/users.xml" delete="false" />
         <file name="reference" path="/home/xadubreu/Projects/Xml2Sql/sample/ref.xml" delete="false" />
     </files>
+    <truncates>
+        <truncate database="sample1" table="link_users_profils" />
+        <truncate database="sample1" table="users" />
+        <truncate database="sample1" table="profils" />
+    </truncates>
     <translations>
         <translation name="Users" file="users" xpath="/xml/user">
             <object-create name="user" database="sample1" table="users" />
@@ -15,6 +20,13 @@
                 <object-value-xml name="user" field="login" xpath="@login" />
                 <object-value-xml name="user" field="firstname" xpath="@firstname" />
                 <object-value-xml name="user" field="lastname" xpath="@lastname" />
+                <xml-loop xpath="profils/profil">
+                    <object-create name="profil" database="sample1" table="profils" />
+                    <object-id name="profil" field="idprofil" />
+                    <object-distinct name="profil" fields="idprofil" />
+                    <object-value-xml name="profil" field="libelle" xpath="@code" />
+                    <object-attach parent="user" child="profil" table="link_users_profils" childfield="idprofil" parentfield="iduser" linkparentfield="iduser" linkchildfield="idprofil" />
+                </xml-loop>
             <object-save name="user" />
         </translation>
     </translations>

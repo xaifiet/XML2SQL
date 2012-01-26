@@ -2,16 +2,16 @@
 <xml>
     <user id="1" login="user1" firstname="Jean" lastname="Bombeur">
         <profils>
-            <profil coode="4" />
-            <profil coode="6" />
-            <profil coode="7" />
+            <profil code="4" />
+            <profil code="6" />
+            <profil code="7" />
         </profils>
     </user>
     <user id="2" login="user2" firstname="Paul" lastname="Hochon">
         <profils>
-            <profil coode="1" />
-            <profil coode="2" />
-            <profil coode="4" />
+            <profil code="1" />
+            <profil code="2" />
+            <profil code="4" />
         </profils>
     </user>
 </xml>

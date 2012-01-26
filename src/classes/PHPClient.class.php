@@ -1,9 +1,48 @@
 <?php
+/**
+ * PHP Client display class file
+ *
+ * PHP version 5
+ *
+ * @category  Display
+ * @package   Xml2Sql
+ * @author    Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+ * @copyright 1997-2005 The PHP Group
+ * @license   Xaifiet Corp licence
+ * @version   GIT: <git_id>
+ * @link      http://www.xaifiet.com
+ * @see       Display
+ * @since     File available since Release 0.1
+ */
 
-
+ /**
+ * Class of Client display message
+ *
+ * @category  Display
+ * @package   Xml2Sql
+ * @author    Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+ * @copyright 1997-2005 The PHP Group
+ * @license   Xaifiet Corp licence
+ * @version   Release: @package_version@
+ * @link      http://www.xaifiet.com
+ * @see       Display
+ * @since     Class available since Release 0.1
+ */
 class PHPClient
 {
 
+    /**
+     * Progression display function
+     *
+     * @param string $name  Progression name
+     * @param string $count Number of current item
+     * @param string $total Total number of items
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public static function progress($name, $count, $total)
     {
         static $percent = null;
