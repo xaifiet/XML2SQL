@@ -13,6 +13,9 @@
         <truncate database="sample1" table="users" />
         <truncate database="sample1" table="profils" />
     </truncates>
+    <indexes>
+        <index name="profils" file="reference" xpath="/xml/profils/profil" use="@code" />
+    </indexes>
     <translations>
         <translation name="Users" file="users" xpath="/xml/user">
             <object-create name="user" database="sample1" table="users" />
@@ -24,7 +27,7 @@
                     <object-create name="profil" database="sample1" table="profils" />
                     <object-id name="profil" field="idprofil" />
                     <object-distinct name="profil" fields="idprofil" />
-                    <object-value-xml name="profil" field="libelle" xpath="@code" />
+                    <object-value-index name="profil" field="libelle" index="profils" use="@code" xpath="@label" />
                     <object-attach parent="user" child="profil" table="link_users_profils" childfield="idprofil" parentfield="iduser" linkparentfield="iduser" linkchildfield="idprofil" />
                 </xml-loop>
             <object-save name="user" />

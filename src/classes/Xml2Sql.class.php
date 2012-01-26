@@ -38,6 +38,8 @@ class Xml2Sql
     protected $files;
 
     protected $objects;
+    
+    protected $indexes;
 
     /**
      * Class constructor
@@ -74,6 +76,25 @@ class Xml2Sql
         foreach ($files as $file) {
             $tag = $this->trans->getTag($file);
             $this->files->loadFile($tag->attributes->name, $tag->attributes->path);
+        }
+
+        // Indexes creation
+        $this->indexes = new StdClass();
+        $indexes = $this->trans->getXPathElements('trans', '/xml/indexes/index');
+        foreach ($indexes as $index) {
+            $tag = $this->trans->getTag($index);
+            $indexName  = $tag->attributes->name;
+            $indexFile  = $tag->attributes->file;
+            $indexXPath = $tag->attributes->xpath;
+            $indexUse   = $tag->attributes->use;
+            $this->indexes->$indexName = new StdClass();
+            $this->indexes->$indexName->fname = $indexFile;
+            $this->indexes->$indexName->indexes = new StdClass;
+            $values = $this->files->getXPathElements($indexFile, $indexXPath);
+            foreach ($values as $value) {
+                $id = $this->files->getXPathValue($indexFile, $indexUse, $value);
+                $this->indexes->$indexName->indexes->$id = $value;
+            }
         }
 
         // Table truncates
@@ -246,6 +267,30 @@ class Xml2Sql
         );
         
         unset($this->objects->$childName);
+    }
+    
+    protected function objectvalueindexAction($tag, $fname, $node)
+    {
+        $name  = $tag->attributes->name;
+        $field = $tag->attributes->field;
+        $index = $tag->attributes->index;
+        $use   = $tag->attributes->use;
+        $xpath = $tag->attributes->xpath;
+        
+        if (!isset($this->objects->$name)) {
+            throw new Exception('No object found');
+        }
+        if (!isset($this->indexes->$index)) {
+            throw new Exception('No index found');
+        }
+        $id = $this->files->getXPathValue($fname, $use, $node);
+        if (!isset($this->indexes->$index->indexes->$id)) {
+            throw new Exception('No index id found');
+        }
+        $indexFile = $this->indexes->$index->fname;
+        $indexNode = $this->indexes->$index->indexes->$id;
+        $value = $this->files->getXPathValue($indexFile, $xpath, $indexNode);
+        $this->objects->$name->$field = $value;
     }
 
 }
