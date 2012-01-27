@@ -17,7 +17,15 @@
     <indexes>
         <index name="profils" file="reference" xpath="/xml/profils/profil" use="@code" />
         <index name="roles" file="users" xpath="/xml/roles/role" use="@code" />
+        <index name="status" file="reference" xpath="/xml/status/status" use="@code" />
     </indexes>
+    <rules>
+        <rule name="status">
+            <value code="Active" label="A-Active" />
+            <value code="Close" label="C-Close" />
+            <value code="Stanby" label="S-Standby" />
+        </rule>
+    </rules>
     <translations>
         <translation name="Users" file="users" xpath="/xml/users/user">
             <object-create name="user" database="sample1" table="users" />
@@ -31,6 +39,7 @@
                     <object-id name="role" field="idrole" />
                     <object-value-object name="role" field="iduser" object="user" use="iduser" />
                     <object-value-xml name="role" field="label" xpath="@label" />
+                    <object-value-index name="role" field="status" index="status" use="@status" xpath="@label" rule="status" />
                     <xml-loop xpath="profil">
                         <object-create name="profil" database="sample1" table="profils" />
                         <object-id name="profil" field="idprofil" />

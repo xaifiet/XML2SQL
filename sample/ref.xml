@@ -11,4 +11,9 @@
         <profil code="profil8" label="Profil N° 8" />
         <profil code="profil9" label="Profil N° 9" />
     </profils>
+    <status>
+        <status code="A" label="Active" />
+        <status code="C" label="Close" />
+        <status code="S" label="Stanby" />
+    </status>
 </xml>

@@ -40,6 +40,8 @@ class Xml2Sql
     protected $objects;
     
     protected $indexes;
+    
+    protected $rules;
 
     /**
      * Class constructor
@@ -102,6 +104,22 @@ class Xml2Sql
         foreach ($truncs as $trunc) {
             $tag = $this->trans->getTag($trunc);
             $dbh->deleteSQL($tag->attributes->database, $tag->attributes->table);
+        }
+
+        // Rules
+        $this->rules = new StdClass();
+        $rules = $this->trans->getXPathElements('trans', '/xml/rules/rule');
+        foreach ($rules as $rule) {
+            $ruleName = $this->trans->getTag($rule)->attributes->name;
+            $this->rules->$ruleName = new StdClass();
+            $values = $this->trans->getXPathElements('trans', 'value', $rule);
+            foreach ($values as $value) {
+                $tag = $this->trans->getTag($value);
+                $code = $tag->attributes->code;
+                $label = $tag->attributes->label;
+                $this->rules->$ruleName->$code = $label;
+            }
+        
         }
 
         // Traductions
@@ -304,6 +322,12 @@ class Xml2Sql
         $indexFile = $this->indexes->$index->fname;
         $indexNode = $this->indexes->$index->indexes->$id;
         $value = $this->files->getXPathValue($indexFile, $xpath, $indexNode);
+        
+        if (isset($tag->attributes->rule)) {
+            $rule  = $tag->attributes->rule;
+            $value = $this->rules->$rule->$value;
+        }
+        
         $this->objects->$name->$field = $value;
     }
     

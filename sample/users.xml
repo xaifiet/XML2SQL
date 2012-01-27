@@ -17,32 +17,32 @@
         </user>
     </users>
     <roles>
-        <role code="role1" label="Role N° 1">
+        <role code="role1" label="Role N° 1" status="A">
             <profil code="profil1" />
             <profil code="profil4" />
             <profil code="profil3" />
         </role>
-        <role code="role2" label="Role N° 2">
+        <role code="role2" label="Role N° 2" status="C">
             <profil code="profil7" />
             <profil code="profil9" />
             <profil code="profil3" />
         </role>
-        <role code="role3" label="Role N° 3">
+        <role code="role3" label="Role N° 3" status="C">
             <profil code="profil4" />
             <profil code="profil2" />
             <profil code="profil6" />
         </role>
-        <role code="role4" label="Role N° 4">
+        <role code="role4" label="Role N° 4" status="A">
             <profil code="profil1" />
             <profil code="profil6" />
             <profil code="profil3" />
         </role>
-        <role code="role5" label="Role N° 5">
+        <role code="role5" label="Role N° 5" status="S">
             <profil code="profil3" />
             <profil code="profil5" />
             <profil code="profil2" />
         </role>
-        <role code="role6" label="Role N° 6">
+        <role code="role6" label="Role N° 6" status="A">
             <profil code="profil2" />
             <profil code="profil6" />
             <profil code="profil1" />
