@@ -1,17 +1,51 @@
 <?xml version="1.0"?>
 <xml>
-    <user id="1" login="user1" firstname="Jean" lastname="Bombeur">
-        <profils>
-            <profil code="4" />
-            <profil code="6" />
-            <profil code="7" />
-        </profils>
-    </user>
-    <user id="2" login="user2" firstname="Paul" lastname="Hochon">
-        <profils>
-            <profil code="1" />
-            <profil code="2" />
-            <profil code="4" />
-        </profils>
-    </user>
+    <users>
+        <user id="1" login="user1" firstname="Jean" lastname="Bombeur">
+            <roles>
+                <role code="role1" />
+                <role code="role3" />
+                <role code="role4" />
+                <role code="role6" />
+            </roles>
+        </user>
+        <user id="2" login="user2" firstname="Paul" lastname="Hochon">
+            <roles>
+                <role code="role2" />
+                <role code="role5" />
+            </roles>
+        </user>
+    </users>
+    <roles>
+        <role code="role1" label="Role N° 1">
+            <profil code="profil1" />
+            <profil code="profil4" />
+            <profil code="profil3" />
+        </role>
+        <role code="role2" label="Role N° 2">
+            <profil code="profil7" />
+            <profil code="profil9" />
+            <profil code="profil3" />
+        </role>
+        <role code="role3" label="Role N° 3">
+            <profil code="profil4" />
+            <profil code="profil2" />
+            <profil code="profil6" />
+        </role>
+        <role code="role4" label="Role N° 4">
+            <profil code="profil1" />
+            <profil code="profil6" />
+            <profil code="profil3" />
+        </role>
+        <role code="role5" label="Role N° 5">
+            <profil code="profil3" />
+            <profil code="profil5" />
+            <profil code="profil2" />
+        </role>
+        <role code="role6" label="Role N° 6">
+            <profil code="profil2" />
+            <profil code="profil6" />
+            <profil code="profil1" />
+        </role>
+    </roles>
 </xml>

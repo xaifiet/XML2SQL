@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <xml>
     <profils>
-        <profil code="1" label="Profil1" />
-        <profil code="2" label="Profil2" />
-        <profil code="3" label="Profil3" />
-        <profil code="4" label="Profil4" />
-        <profil code="5" label="Profil5" />
-        <profil code="6" label="Profil6" />
-        <profil code="7" label="Profil7" />
+        <profil code="profil1" label="Profil N° 1" />
+        <profil code="profil2" label="Profil N° 2" />
+        <profil code="profil3" label="Profil N° 3" />
+        <profil code="profil4" label="Profil N° 4" />
+        <profil code="profil5" label="Profil N° 5" />
+        <profil code="profil6" label="Profil N° 6" />
+        <profil code="profil7" label="Profil N° 7" />
+        <profil code="profil8" label="Profil N° 8" />
+        <profil code="profil9" label="Profil N° 9" />
     </profils>
 </xml>

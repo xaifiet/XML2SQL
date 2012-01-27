@@ -9,27 +9,38 @@
         <file name="reference" path="/home/xadubreu/Projects/Xml2Sql/sample/ref.xml" delete="false" />
     </files>
     <truncates>
-        <truncate database="sample1" table="link_users_profils" />
-        <truncate database="sample1" table="users" />
+        <truncate database="sample1" table="link_roles_profils" />
         <truncate database="sample1" table="profils" />
+        <truncate database="sample1" table="roles" />
+        <truncate database="sample1" table="users" />
     </truncates>
     <indexes>
         <index name="profils" file="reference" xpath="/xml/profils/profil" use="@code" />
+        <index name="roles" file="users" xpath="/xml/roles/role" use="@code" />
     </indexes>
     <translations>
-        <translation name="Users" file="users" xpath="/xml/user">
+        <translation name="Users" file="users" xpath="/xml/users/user">
             <object-create name="user" database="sample1" table="users" />
-                <object-value-xml name="user" field="iduser" xpath="@id" />
-                <object-value-xml name="user" field="login" xpath="@login" />
-                <object-value-xml name="user" field="firstname" xpath="@firstname" />
-                <object-value-xml name="user" field="lastname" xpath="@lastname" />
-                <xml-loop xpath="profils/profil">
-                    <object-create name="profil" database="sample1" table="profils" />
-                    <object-id name="profil" field="idprofil" />
-                    <object-distinct name="profil" fields="idprofil" />
-                    <object-value-index name="profil" field="libelle" index="profils" use="@code" xpath="@label" />
-                    <object-attach parent="user" child="profil" table="link_users_profils" childfield="idprofil" parentfield="iduser" linkparentfield="iduser" linkchildfield="idprofil" />
-                </xml-loop>
+            <object-value-xml name="user" field="iduser" xpath="@id" />
+            <object-value-xml name="user" field="login" xpath="@login" />
+            <object-value-xml name="user" field="firstname" xpath="@firstname" />
+            <object-value-xml name="user" field="lastname" xpath="@lastname" />
+            <xml-loop xpath="roles/role">
+                <index-loop index="roles" use="@code">
+                    <object-create name="role" database="sample1" table="roles" />
+                    <object-id name="role" field="idrole" />
+                    <object-value-object name="role" field="iduser" object="user" use="iduser" />
+                    <object-value-xml name="role" field="label" xpath="@label" />
+                    <xml-loop xpath="profil">
+                        <object-create name="profil" database="sample1" table="profils" />
+                        <object-id name="profil" field="idprofil" />
+                        <object-distinct name="profil" fields="idprofil" />
+                        <object-value-index name="profil" field="libelle" index="profils" use="@code" xpath="@label" />
+                        <object-attach-link parent="role" child="profil" table="link_roles_profils" childfield="idprofil" parentfield="idrole" linkparentfield="idrole" linkchildfield="idprofil" />
+                    </xml-loop>
+                    <object-attach parent="user" child="role" />
+                </index-loop>
+            </xml-loop>
             <object-save name="user" />
         </translation>
     </translations>

@@ -179,7 +179,7 @@ class Xml2Sql
         if (isset($this->objects->$objName)) {
             throw new Exception('Object name already exist');
         }
-        $this->objects->$objName = new DatabaseObject($dbname, $table);
+        $this->objects->$objName = new DatabaseObject($objName, $dbname, $table);
     }
 
     protected function objectvaluexmlAction($tag, $fname, $node)
@@ -248,7 +248,7 @@ class Xml2Sql
         }
     }
 
-    protected function objectattachAction($tag, $fname, $node)
+    protected function objectattachlinkAction($tag, $fname, $node)
     {
         $parentName      = $tag->attributes->parent;
         $parentField     = $tag->attributes->parentfield;
@@ -261,12 +261,26 @@ class Xml2Sql
         $parentObj = $this->objects->$parentName;
         $childObj  = $this->objects->$childName;
         
-        $parentObj->addChild(
+        $parentObj->addLinkChild(
             $childObj, $table, $parentField, $childField,
             $linkParentField, $linkChildField
         );
         
         unset($this->objects->$childName);
+    }
+    
+    protected function objectattachAction($tag, $fname, $node)
+    {
+        $parentName      = $tag->attributes->parent;
+        $childName       = $tag->attributes->child;
+
+        $parentObj = $this->objects->$parentName;
+        $childObj  = $this->objects->$childName;
+        
+        $parentObj->addChild($childObj);
+        
+        unset($this->objects->$childName);
+
     }
     
     protected function objectvalueindexAction($tag, $fname, $node)
@@ -291,6 +305,43 @@ class Xml2Sql
         $indexNode = $this->indexes->$index->indexes->$id;
         $value = $this->files->getXPathValue($indexFile, $xpath, $indexNode);
         $this->objects->$name->$field = $value;
+    }
+    
+    protected function indexloopAction($tag, $fname, $node)
+    {
+        $index = $tag->attributes->index;
+        $use   = $tag->attributes->use;
+
+        $id = $this->files->getXPathValue($fname, $use, $node);
+        
+        if (!isset($this->indexes->$index->indexes->$id)) {
+            throw new Exception('No index id found');
+        }
+
+        $indexFile = $this->indexes->$index->fname;
+        $indexNode = $this->indexes->$index->indexes->$id;
+
+        foreach ($tag->getChildren() as $child) {
+            $this->callActionFunc($child, $indexFile, $indexNode);
+        }
+    }
+
+    protected function objectvalueobjectAction($tag, $fname, $node)
+    {
+        $name   = $tag->attributes->name;
+        $field  = $tag->attributes->field;
+        $object = $tag->attributes->object;
+        $use    = $tag->attributes->use;
+
+        if (!isset($this->objects->$name)) {
+            throw new Exception('No object found');
+        }
+        if (!isset($this->objects->$object)) {
+            throw new Exception('No object found');
+        }
+        
+        $this->objects->$name->$field = $this->objects->$object->$use;
+
     }
 
 }

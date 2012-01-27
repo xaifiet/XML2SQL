@@ -40,6 +40,14 @@ class DatabaseObject
     protected static $increments;
 
     /**
+     * Variable containing the object name
+     *
+     * @var string Object name
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected $name;
+
+    /**
      * Variable containing name of the database handler
      *
      * @var string
@@ -108,15 +116,22 @@ class DatabaseObject
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function __construct($database, $table)
+    public function __construct($name, $database, $table)
     {
+        $this->name       = $name;
         $this->database   = $database;
         $this->table      = $table;
         $this->id         = null;
         $this->distincts  = array();
-        self::$increments = is_null(self::$increments) ? array() : self::$increments;
         $this->fields     = array();
         $this->children   = array();
+        
+        if (is_null(self::$increments)) {
+            self::$increments = new StdClass();
+        }
+        if (!isset(self::$increments->$name)) {
+            self::$increments->$name = array();
+        }
     }
 
 
@@ -194,6 +209,16 @@ class DatabaseObject
         }
     }
 
+    public function addChild($obj)
+    {
+        $child = new StdClass();
+        
+        $child->object = $obj;
+        $child->link   = false;
+        
+        $this->children[] = $child;
+    }
+
     /**
      * Links setter for the object
      *
@@ -216,11 +241,12 @@ class DatabaseObject
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function addChild($object, $table, $field, $foreign, $tField, $tForeign)
+    public function addLinkChild($obj, $table, $field, $foreign, $tField, $tForeign)
     {
         $child = new StdClass();
 
-        $child->object   = $object;
+        $child->object   = $obj;
+        $child->link     = true;
         $child->table    = $table;
         $child->field    = $field;
         $child->foreign  = $foreign;
@@ -267,12 +293,12 @@ class DatabaseObject
     public function save()
     {
         // ID serach and set
-        // 
         $flgInsert = true;
         if (!is_null($this->id)) {
             $serialize = $this->serialize();
+            $objName = $this->name;
             $count = 0;
-            foreach (self::$increments as $serial) {
+            foreach (self::$increments->$objName as $serial) {
                 if ($serialize == $serial) {
                     $this->fields[$this->id] = $count;
                     $flgInsert = false;
@@ -281,7 +307,7 @@ class DatabaseObject
             }
             if ($flgInsert) {
                 $this->fields[$this->id] = $count;
-                self::$increments[] = $serialize;
+                array_push(self::$increments->$objName, $serialize);
             }
         }
 
@@ -306,18 +332,20 @@ class DatabaseObject
         // Children save
         foreach ($this->children as $child) {
             $child->object->save();
+            
+            if ($child->link) {
+                $link = new DatabaseObject('link', $this->database, $child->table);
 
-            $link = new DatabaseObject($this->database, $child->table);
+                $tField          = $child->tField;
+                $field           = $child->field;
+                $link->$tField   = $this->$field;
 
-            $tField          = $child->tField;
-            $field           = $child->field;
-            $link->$tField   = $this->$field;
+                $tForeign        = $child->tForeign;
+                $foreign         = $child->foreign;
+                $link->$tForeign = $child->object->$foreign;
 
-            $tForeign        = $child->tForeign;
-            $foreign         = $child->foreign;
-            $link->$tForeign = $child->object->$foreign;
-
-            $link->save();
+                $link->save();
+            }
         }
 
     }
