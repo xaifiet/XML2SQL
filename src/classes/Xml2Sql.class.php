@@ -286,7 +286,22 @@ class Xml2Sql
         
         unset($this->objects->$childName);
     }
-    
+
+    protected function objectattachlinkinAction($tag, $fname, $node)
+    {
+        $parentName      = $tag->attributes->parent;
+        $parentField     = $tag->attributes->parentfield;
+        $childName       = $tag->attributes->child;
+        $childField      = $tag->attributes->childfield;
+
+        $parentObj = $this->objects->$parentName;
+        $childObj  = $this->objects->$childName;
+
+        $parentObj->addLinkInChild($childObj, $parentField, $childField);
+
+        unset($this->objects->$childName);
+    }
+
     protected function objectattachAction($tag, $fname, $node)
     {
         $parentName      = $tag->attributes->parent;

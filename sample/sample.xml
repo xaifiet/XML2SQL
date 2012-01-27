@@ -37,7 +37,6 @@
                 <index-loop index="roles" use="@code">
                     <object-create name="role" database="sample1" table="roles" />
                     <object-id name="role" field="idrole" />
-                    <object-value-object name="role" field="iduser" object="user" use="iduser" />
                     <object-value-xml name="role" field="label" xpath="@label" />
                     <object-value-index name="role" field="status" index="status" use="@status" xpath="@label" rule="status" />
                     <xml-loop xpath="profil">
@@ -47,7 +46,7 @@
                         <object-value-index name="profil" field="libelle" index="profils" use="@code" xpath="@label" />
                         <object-attach-link parent="role" child="profil" table="link_roles_profils" childfield="idprofil" parentfield="idrole" linkparentfield="idrole" linkchildfield="idprofil" />
                     </xml-loop>
-                    <object-attach parent="user" child="role" />
+                    <object-attach-linkin parent="user" child="role" parentfield="iduser" childfield="iduser" />
                 </index-loop>
             </xml-loop>
             <object-save name="user" />

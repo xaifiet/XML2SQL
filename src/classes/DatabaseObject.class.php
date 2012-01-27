@@ -214,7 +214,7 @@ class DatabaseObject
         $child = new StdClass();
         
         $child->object = $obj;
-        $child->link   = false;
+        $child->link   = 'none';
         
         $this->children[] = $child;
     }
@@ -246,7 +246,7 @@ class DatabaseObject
         $child = new StdClass();
 
         $child->object   = $obj;
-        $child->link     = true;
+        $child->link     = 'out';
         $child->table    = $table;
         $child->field    = $field;
         $child->foreign  = $foreign;
@@ -254,6 +254,19 @@ class DatabaseObject
         $child->tForeign = $tForeign;
 
         $this->children[] = $child;
+    }
+    
+    public function addLinkInChild($obj, $parentField, $childField)
+    {
+        $child = new StdClass();
+
+        $child->object      = $obj;
+        $child->link        = 'in';
+        $child->parentField = $parentField;
+        $child->childField  = $childField;
+
+        $this->children[] = $child;
+    
     }
 
     /**
@@ -331,9 +344,15 @@ class DatabaseObject
 
         // Children save
         foreach ($this->children as $child) {
+            if ($child->link == 'in') {
+                $childField  = $child->childField;
+                $parentField = $child->parentField;
+                $child->object->$childField = $this->$parentField;
+            }
+
             $child->object->save();
-            
-            if ($child->link) {
+
+            if ($child->link == 'out') {
                 $link = new DatabaseObject('link', $this->database, $child->table);
 
                 $tField          = $child->tField;
