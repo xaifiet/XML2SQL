@@ -63,6 +63,8 @@ class Xml2Sql
     
         $this->trans = new XmlParser();
         $this->trans->loadFile('trans', $convert);
+        $xsd = dirname($_SERVER['argv'][0]).'/xsd/Xml2Sql.xsd';
+        $this->trans->validateFileSchema('trans', $xsd);
 
         // Databases connection
         $dbh = new DatabaseHandlers();

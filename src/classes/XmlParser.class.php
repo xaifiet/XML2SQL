@@ -121,6 +121,19 @@ class XmlParser
         $this->files->$fname = $newfile;
     }
 
+    public function validateFileSchema($fname, $xsd)
+    {
+        if (!isset($this->files->$fname)) {
+            throw new Exception('No file handle for this name');
+        }
+
+        if (!@$this->files->$fname->dom->schemaValidate($xsd)) {
+            throw new Exception('File does not match schema');
+        }
+        
+        return true;
+    }
+
     /**
      * Get tag function
      *
