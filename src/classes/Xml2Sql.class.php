@@ -66,9 +66,10 @@ class Xml2Sql
 
         // Databases connection
         $dbh = new DatabaseHandlers();
-        $dbs = $this->trans->getXPathElements('trans', '/xml/databases/database');
+        $dbs = $this->trans->getXPathElements('trans', '/xml/databases/*');
         foreach ($dbs as $db) {
             $tag = $this->trans->getTag($db);
+            $tag->attributes->pilote = $tag->name;
             $test = $dbh->addDatabase($tag->attributes->name, $tag->attributes);
         }
 
@@ -268,13 +269,21 @@ class Xml2Sql
 
     protected function objectattachlinkAction($tag, $fname, $node)
     {
-        $parentName      = $tag->attributes->parent;
-        $parentField     = $tag->attributes->parentfield;
-        $childName       = $tag->attributes->child;
-        $childField      = $tag->attributes->childfield;
-        $table           = $tag->attributes->table;
-        $linkParentField = $tag->attributes->linkparentfield;
-        $linkChildField  = $tag->attributes->linkchildfield;
+        $parentName  = $tag->attributes->parent;
+        $parentField = $tag->attributes->parentfield;
+        $childName   = $tag->attributes->child;
+        $childField  = $tag->attributes->childfield;
+        $table       = $tag->attributes->table;
+        if (isset($tag->attributes->linkparentfield)) {
+            $linkParentField = $tag->attributes->linkparentfield;
+        } else {
+            $linkParentField= $parentField;
+        }
+        if (isset($tag->attributes->linkchildfield)) {
+            $linkChildField = $tag->attributes->linkchildfield;
+        } else {
+            $linkChildField = $childField;
+        }
         
         $parentObj = $this->objects->$parentName;
         $childObj  = $this->objects->$childName;

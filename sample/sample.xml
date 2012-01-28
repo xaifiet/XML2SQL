@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<xml pouet="toto">
+<xml>
     <databases>
-        <database name="sample1" pilote="pgsql" host="localhost" port="5432" dbname="Sample1" user="pgadm" password="Pgadm" transaction="true" />
-        <database name="sample2" pilote="pgsql" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" transaction="true" />
+        <pgsql name="sample1" host="localhost" port="5432" dbname="Sample1" user="pgadm" password="Pgadm" transaction="true" />
+        <pgsql name="sample2" host="localhost" port="5432" dbname="Sample2" user="pgadm" password="Pgadm" transaction="true" />
     </databases>
     <files>
         <file name="users" path="/home/xadubreu/Projects/Xml2Sql/sample/users.xml" delete="false" />
@@ -27,7 +27,7 @@
         </rule>
     </rules>
     <translations>
-        <translation name="Users" file="users" xpath="/xml/users/user">
+        <translation name="Sample" file="users" xpath="/xml/users/user">
             <object-create name="user" database="sample1" table="users" />
             <object-value-xml name="user" field="iduser" xpath="@id" />
             <object-value-xml name="user" field="login" xpath="@login" />
@@ -44,7 +44,7 @@
                         <object-id name="profil" field="idprofil" />
                         <object-distinct name="profil" fields="idprofil" />
                         <object-value-index name="profil" field="libelle" index="profils" use="@code" xpath="@label" />
-                        <object-attach-link parent="role" child="profil" table="link_roles_profils" childfield="idprofil" parentfield="idrole" linkparentfield="idrole" linkchildfield="idprofil" />
+                        <object-attach-link parent="role" child="profil" table="link_roles_profils" childfield="idprofil" parentfield="idrole" />
                     </xml-loop>
                     <object-attach-linkin parent="user" child="role" parentfield="iduser" childfield="iduser" />
                 </index-loop>
