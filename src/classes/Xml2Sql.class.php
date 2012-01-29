@@ -60,15 +60,14 @@ class Xml2Sql
     public function translate($convert)
     {
         $this->objects = new StdClass();
-    
-        $this->trans = new XmlParser();
-        $this->trans->loadFile('trans', $convert);
+
         $xsd = dirname($_SERVER['argv'][0]).'/xsd/Xml2Sql.xsd';
-        $this->trans->validateFileSchema('trans', $xsd);
+
+        $this->trans = new XmlParser($convert, $xsd);
 
         // Databases connection
         $dbh = new DatabaseHandlers();
-        $dbs = $this->trans->getXPathElements('trans', '/xml/databases/*');
+        $dbs = $this->trans->getXPathElements('/xml/databases/*');
         foreach ($dbs as $db) {
             $tag = $this->trans->getTag($db);
             $tag->attributes->pilote = $tag->name;
@@ -76,16 +75,19 @@ class Xml2Sql
         }
 
         // Files opening
-        $this->files = new XmlParser();
-        $files = $this->trans->getXPathElements('trans', '/xml/files/file');
+        $this->files = new XmlParserHandlers();
+        $files = $this->trans->getXPathElements('/xml/files/file');
         foreach ($files as $file) {
             $tag = $this->trans->getTag($file);
-            $this->files->loadFile($tag->attributes->name, $tag->attributes->path);
+            $fname = $tag->attributes->name;
+            $fpath = $tag->attributes->path;
+            $fxsd  = isset($tag->attributes->xsd) ? $tag->attributes->xsd : null;
+            $this->files->loadFile($fname, $fpath, $fxsd);
         }
 
         // Indexes creation
         $this->indexes = new StdClass();
-        $indexes = $this->trans->getXPathElements('trans', '/xml/indexes/index');
+        $indexes = $this->trans->getXPathElements('/xml/indexes/index');
         foreach ($indexes as $index) {
             $tag = $this->trans->getTag($index);
             $indexName  = $tag->attributes->name;
@@ -103,7 +105,7 @@ class Xml2Sql
         }
 
         // Table truncates
-        $truncs = $this->trans->getXPathElements('trans', '/xml/truncates/truncate');
+        $truncs = $this->trans->getXPathElements( '/xml/truncates/truncate');
         foreach ($truncs as $trunc) {
             $tag = $this->trans->getTag($trunc);
             $dbh->deleteSQL($tag->attributes->database, $tag->attributes->table);
@@ -111,11 +113,11 @@ class Xml2Sql
 
         // Rules
         $this->rules = new StdClass();
-        $rules = $this->trans->getXPathElements('trans', '/xml/rules/rule');
+        $rules = $this->trans->getXPathElements('/xml/rules/rule');
         foreach ($rules as $rule) {
             $ruleName = $this->trans->getTag($rule)->attributes->name;
             $this->rules->$ruleName = new StdClass();
-            $values = $this->trans->getXPathElements('trans', 'value', $rule);
+            $values = $this->trans->getXPathElements('value', $rule);
             foreach ($values as $value) {
                 $tag = $this->trans->getTag($value);
                 $code = $tag->attributes->code;
@@ -126,10 +128,7 @@ class Xml2Sql
         }
 
         // Traductions
-        $trads = $this->trans->getXPathElements(
-            'trans',
-            '/xml/translations/translation'
-        );
+        $trads = $this->trans->getXPathElements('/xml/translations/translation');
         foreach ($trads as $trad) {
             $this->callActionFunc($trad, false, false);
         }

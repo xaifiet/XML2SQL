@@ -6,7 +6,7 @@
     </databases>
     <files>
         <file name="users" path="/home/xadubreu/Projects/Xml2Sql/sample/users.xml" delete="false" />
-        <file name="reference" path="/home/xadubreu/Projects/Xml2Sql/sample/ref.xml" delete="false" />
+        <file name="reference" path="/home/xadubreu/Projects/Xml2Sql/sample/ref.xml" delete="false" xsd="/home/xadubreu/Projects/Xml2Sql/sample/ref.xsd" />
     </files>
     <truncates>
         <truncate database="sample1" table="link_roles_profils" />

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="xml" type="xmlType" />
+
+
+    <!-- XML TYPES -->
+
+    <!-- XML -->
+    <xs:complexType name="xmlType">
+        <xs:sequence>
+            <xs:element name="profils" type="profilsType" minOccurs="1" maxOccurs="1" />
+            <xs:element name="status" type="statussType" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- PROFILS -->
+    <xs:complexType name="profilsType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="profil" type="profilType" minOccurs="1" maxOccurs="unbounded" />
+        </xs:choice>
+    </xs:complexType>
+
+    <!-- PROFIL -->
+    <xs:complexType name="profilType">
+        <xs:attribute name="code" type="xs:string" use="required" />
+        <xs:attribute name="label" type="xs:string" use="required" />
+    </xs:complexType>
+
+
+    <!-- PROFILS -->
+    <xs:complexType name="statussType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="status" type="statusType" minOccurs="1" maxOccurs="unbounded" />
+        </xs:choice>
+    </xs:complexType>
+
+    <!-- PROFIL -->
+    <xs:complexType name="statusType">
+        <xs:attribute name="code" type="xs:string" use="required" />
+        <xs:attribute name="label" type="xs:string" use="required" />
+    </xs:complexType>
+
+
+
+</xs:schema>

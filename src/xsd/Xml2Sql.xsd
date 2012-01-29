@@ -3,6 +3,7 @@
 
     <xs:element name="xml" type="xmlType" />
 
+
     <!-- XML TYPES -->
 
     <!-- XML -->
@@ -29,13 +30,13 @@
 
     <!-- PGSQL DATABASE -->
     <xs:complexType name="pgsqlDatabaseType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="host" type="xs:string" use="required"/>
-        <xs:attribute name="port" type="xs:positiveInteger" use="optional" default="5432"/>
-        <xs:attribute name="dbname" type="xs:string" use="required"/>
-        <xs:attribute name="user" type="xs:string" use="required"/>
-        <xs:attribute name="password" type="xs:string" use="optional"/>
-        <xs:attribute name="transaction" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="host" type="xs:string" use="required" />
+        <xs:attribute name="port" type="xs:positiveInteger" use="optional" default="5432" />
+        <xs:attribute name="dbname" type="xs:string" use="required" />
+        <xs:attribute name="user" type="xs:string" use="required" />
+        <xs:attribute name="password" type="xs:string" use="optional" />
+        <xs:attribute name="transaction" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
 
 
@@ -50,9 +51,10 @@
 
     <!-- FILE -->
     <xs:complexType name="fileType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="path" type="xs:string" use="required"/>
-        <xs:attribute name="delete" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="path" type="xs:string" use="required" />
+        <xs:attribute name="xsd" type="xs:string" use="optional" default="null" />
+        <xs:attribute name="delete" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
 
 
@@ -67,8 +69,8 @@
 
     <!-- TRUNCATE -->
     <xs:complexType name="truncateType">
-        <xs:attribute name="database" type="xs:string" use="required"/>
-        <xs:attribute name="table" type="xs:string" use="required"/>
+        <xs:attribute name="database" type="xs:string" use="required" />
+        <xs:attribute name="table" type="xs:string" use="required" />
     </xs:complexType>
 
 
@@ -83,10 +85,10 @@
 
     <!-- INDEX -->
     <xs:complexType name="indexType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="file" type="xs:string" use="required"/>
-        <xs:attribute name="xpath" type="xs:string" use="required"/>
-        <xs:attribute name="use" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="file" type="xs:string" use="required" />
+        <xs:attribute name="xpath" type="xs:string" use="required" />
+        <xs:attribute name="use" type="xs:string" use="required" />
     </xs:complexType>
 
 
@@ -104,13 +106,13 @@
         <xs:choice minOccurs="1" maxOccurs="unbounded">
             <xs:element name="value" type="ruleValueType" minOccurs="1" maxOccurs="unbounded" />
         </xs:choice>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- RULE VALUE LOOP -->
     <xs:complexType name="ruleValueType">
-        <xs:attribute name="code" type="xs:string" use="required"/>
-        <xs:attribute name="label" type="xs:string" use="required"/>
+        <xs:attribute name="code" type="xs:string" use="required" />
+        <xs:attribute name="label" type="xs:string" use="required" />
     </xs:complexType>
 
 
@@ -127,9 +129,9 @@
     <xs:complexType name="translationType">
         <xs:complexContent>
             <xs:extension base="translationLoopType">
-                <xs:attribute name="name" type="xs:string" use="required"/>
-                <xs:attribute name="file" type="xs:string" use="required"/>
-                <xs:attribute name="xpath" type="xs:string" use="required"/>
+                <xs:attribute name="name" type="xs:string" use="required" />
+                <xs:attribute name="file" type="xs:string" use="required" />
+                <xs:attribute name="xpath" type="xs:string" use="required" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -155,83 +157,83 @@
     <xs:complexType name="indexLoopType">
         <xs:complexContent>
             <xs:extension base="translationLoopType">
-                <xs:attribute name="index" type="xs:string" use="required"/>
-                <xs:attribute name="use" type="xs:string" use="required"/>
+                <xs:attribute name="index" type="xs:string" use="required" />
+                <xs:attribute name="use" type="xs:string" use="required" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <!-- OBJECT ATTACH -->
     <xs:complexType name="objectAttachType">
-        <xs:attribute name="parent" type="xs:string" use="required"/>
-        <xs:attribute name="child" type="xs:string" use="required"/>
+        <xs:attribute name="parent" type="xs:string" use="required" />
+        <xs:attribute name="child" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT ATTACH LINK IN -->
     <xs:complexType name="objectAttachLinkInType">
-        <xs:attribute name="parent" type="xs:string" use="required"/>
-        <xs:attribute name="child" type="xs:string" use="required"/>
-        <xs:attribute name="parentfield" type="xs:string" use="required"/>
-        <xs:attribute name="childfield" type="xs:string" use="required"/>
+        <xs:attribute name="parent" type="xs:string" use="required" />
+        <xs:attribute name="child" type="xs:string" use="required" />
+        <xs:attribute name="parentfield" type="xs:string" use="required" />
+        <xs:attribute name="childfield" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT ATTACH LINK OUT -->
     <xs:complexType name="objectAttachLinkType">
-        <xs:attribute name="parent" type="xs:string" use="required"/>
-        <xs:attribute name="child" type="xs:string" use="required"/>
-        <xs:attribute name="table" type="xs:string" use="required"/>
-        <xs:attribute name="parentfield" type="xs:string" use="required"/>
-        <xs:attribute name="childfield" type="xs:string" use="required"/>
-        <xs:attribute name="linkparentfield" type="xs:string" use="optional"/>
-        <xs:attribute name="linkchildfield" type="xs:string" use="optional"/>
+        <xs:attribute name="parent" type="xs:string" use="required" />
+        <xs:attribute name="child" type="xs:string" use="required" />
+        <xs:attribute name="table" type="xs:string" use="required" />
+        <xs:attribute name="parentfield" type="xs:string" use="required" />
+        <xs:attribute name="childfield" type="xs:string" use="required" />
+        <xs:attribute name="linkparentfield" type="xs:string" use="optional" />
+        <xs:attribute name="linkchildfield" type="xs:string" use="optional" />
     </xs:complexType>
 
     <!-- OBJECT CREATE -->
     <xs:complexType name="objectCreateType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="database" type="xs:string" use="required"/>
-        <xs:attribute name="table" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="database" type="xs:string" use="required" />
+        <xs:attribute name="table" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT DISTINCT -->
     <xs:complexType name="objectDistinctType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="fields" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="fields" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT ID -->
     <xs:complexType name="objectIdType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="field" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT SAVE -->
     <xs:complexType name="objectSaveType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT VALUE INDEX -->
     <xs:complexType name="objectValueIndexType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="field" type="xs:string" use="required"/>
-        <xs:attribute name="index" type="xs:string" use="required"/>
-        <xs:attribute name="use" type="xs:string" use="required"/>
-        <xs:attribute name="xpath" type="xs:string" use="required"/>
-        <xs:attribute name="rule" type="xs:string" use="optional"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="index" type="xs:string" use="required" />
+        <xs:attribute name="use" type="xs:string" use="required" />
+        <xs:attribute name="xpath" type="xs:string" use="required" />
+        <xs:attribute name="rule" type="xs:string" use="optional" />
     </xs:complexType>
 
     <!-- OBJECT VALUE XML -->
     <xs:complexType name="objectValueXmlType">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="field" type="xs:string" use="required"/>
-        <xs:attribute name="xpath" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="xpath" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- XML LOOP -->
     <xs:complexType name="xmlLoopType">
         <xs:complexContent>
             <xs:extension base="translationLoopType">
-                <xs:attribute name="xpath" type="xs:string" use="required"/>
+                <xs:attribute name="xpath" type="xs:string" use="required" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

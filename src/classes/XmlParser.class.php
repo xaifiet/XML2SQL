@@ -34,13 +34,13 @@ class XmlParser
 {
 
     /**
-     * DomDocument of the XML
+     * DomDocument of the XML File
      *
-     * @var DomDocument
+     * @var DOMDocument
      *
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    protected $files;
+    protected $dom;
 
     /**
      * XPath of the XML
@@ -54,80 +54,66 @@ class XmlParser
     /**
      * Class constructor
      *
-     * The constructor initilize files value
-     *
-     * @return void
-     *
-     * @throw Exception File name already used
-     * @throw Exception Inexistant or unreadable file
-     * @throw Exception Load xml file failed
-     *
-     * @since 0.1
-     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
-     */
-    public function __construct()
-    {
-        $this->files = new StdClass();
-    }
-
-    /**
-     * Class constructor
-     *
      * This function initiate the XML container by :
      * - Checking the configuration file (exist, readable)
      * - Loading the XML and check his validity
+     * - Loading XPath
      *
-     * @param string $fname Name of the file handle
-     * @param string $path  Configuration file path
+     * @param string $path XML File path
+     * @param string $xsd  XSD File Path
      *
      * @return void
      *
-     * @throw Exception File name already used
      * @throw Exception Inexistant or unreadable file
      * @throw Exception Load xml file failed
      *
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function loadFile($fname, $path)
+    public function __construct($path, $xsd = null)
     {
-        // Check if the name is available
-        if (isset($this->files->$fname)) {
-            throw new Exception('File name already used');
-        }
-
-        // Instantiate the new file handle
-        $newfile = new StdClass();
-        $newfile->path = $path;
-
         // Check the read access to the xml file
-        if (!is_readable($newfile->path)) {
-            throw new Exception('Inexistant or unreadable file: '.$newfile->path);
+        if (!is_readable($path)) {
+            throw new Exception('Inexistant or unreadable file: '.$path);
         }
 
         // Load the xml file into the dom
-        $newfile->dom = new DOMDocument();
-        if (!$newfile->dom->load($newfile->path)) {
+        $this->dom = new DOMDocument();
+        if (!$this->dom->load($path)) {
             throw new Exception('Load xml file failed : '.$newfile->filepath);
         }
 
-        // Load the XPath
-        $newfile->xpath = new DOMXPath($newfile->dom);
-        // Load php function for XPath
-        $newfile->xpath->registerNamespace('php', 'http://php.net/xpath');
-        $newfile->xpath->registerPHPFunctions();
-
-        // Insert the new filehandle in the class files
-        $this->files->$fname = $newfile;
-    }
-
-    public function validateFileSchema($fname, $xsd)
-    {
-        if (!isset($this->files->$fname)) {
-            throw new Exception('No file handle for this name');
+        // XSD Schema Validation
+        if (!is_null($xsd)) {
+            $this->validateFileSchema($xsd);
         }
 
-        if (!@$this->files->$fname->dom->schemaValidate($xsd)) {
+        // Load the XPath
+        $this->xpath = new DOMXPath($this->dom);
+        // Load php function for XPath
+        $this->xpath->registerNamespace('php', 'http://php.net/xpath');
+        $this->xpath->registerPHPFunctions();
+    }
+
+    /**
+     * XSD Schema validation function
+     *
+     * This function validate the DOMDocument with an XSD file
+     *
+     * @param string $path XML File path
+     * @param string $xsd  XSD File Path
+     *
+     * @return void
+     *
+     * @throw Exception File does not match schema
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected function validateFileSchema($xsd)
+    {
+        // XSD Schema validation
+        if (!@$this->dom->schemaValidate($xsd)) {
             throw new Exception('File does not match schema');
         }
         
@@ -157,7 +143,6 @@ class XmlParser
      *
      * This function search xpath elements in Document or node id specified
      *
-     * @param string     $fname Name of the file handle
      * @param string     $xpath XPath search string
      * @param DomElement $node  Root search node
      *
@@ -166,15 +151,12 @@ class XmlParser
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function getXPathElements($fname, $xpath, $node = null)
+    public function getXPathElements($xpath, $node = null)
     {
-        if (!isset($this->files->$fname)) {
-            throw new Exception('No file handle for this name');
-        }
         if (is_null($node)) {
-            $elements = $this->files->$fname->xpath->query($xpath);
+            $elements = $this->xpath->query($xpath);
         } else {
-            $elements = $this->files->$fname->xpath->query($xpath, $node);
+            $elements = $this->xpath->query($xpath, $node);
         }
         $res = array();
         foreach ($elements as $element) {
@@ -189,7 +171,6 @@ class XmlParser
      * This function the value from an xpath. If the xpath returns no result or more
      * than one, false will be returned
      *
-     * @param string     $fname Name of the file handle
      * @param string     $xpath XPath search string
      * @param DomElement $node  Root search node
      *
@@ -199,9 +180,9 @@ class XmlParser
      * @since 0.1
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
-    public function getXPathValue($fname, $xpath, $node)
+    public function getXPathValue($xpath, $node)
     {
-        $tmp = $this->getXPathElements($fname, $xpath, $node);
+        $tmp = $this->getXPathElements($xpath, $node);
         if (!count($tmp)) {
             return false;
         } else if (count($tmp) > 1) {
