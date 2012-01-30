@@ -393,6 +393,63 @@ class Xml2Sql
 
     }
 
+    protected function objectfiltervalueAction($tag, $fname, $node)
+    {
+        $name   = $tag->attributes->name;
+        $field  = $tag->attributes->field;
+        if (isset($tag->attributes->accept)) {
+            $accept = explode(',', $tag->attributes->accept);
+        } else {
+            $accept = array();
+        }
+        if (isset($tag->attributes->refuse)) {
+            $refuse = explode(',', $tag->attributes->refuse);
+        } else {
+            $refuse = array();
+        }
+
+        if (!isset($this->objects->$name)) {
+            throw new Exception('No object found');
+        }
+
+        $this->objects->$name->addConditionValue($field, $accept, $refuse);
+    }
+    
+    protected function objectfilterchildrenAction($tag, $fname, $node)
+    {
+        $name   = $tag->attributes->name;
+        $child  = $tag->attributes->child;
+        $field  = $tag->attributes->field;
+        if (isset($tag->attributes->accept)) {
+            $accept = explode(',', $tag->attributes->accept);
+        } else {
+            $accept = array();
+        }
+        if (isset($tag->attributes->refuse)) {
+            $refuse = explode(',', $tag->attributes->refuse);
+        } else {
+            $refuse = array();
+        }
+        if (isset($tag->attributes->minOccurs)) {
+            $min = $tag->attributes->minOccurs;
+        } else {
+            $min = null;
+        }
+        if (isset($tag->attributes->maxOccurs)) {
+            $max = $tag->attributes->maxOccurs;
+        } else {
+            $max = null;
+        }
+
+        if (!isset($this->objects->$name)) {
+            throw new Exception('No object found');
+        }
+
+        $this->objects->$name->addConditionChild(
+            $child, $field, $accept, $refuse, $min, $max
+        );
+    }
+
 }
 
 ?>

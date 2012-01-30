@@ -92,6 +92,16 @@ class DatabaseObject
     protected $distincts;
 
     /**
+     * Variable containing the list of the conditions
+     *
+     * This list will contains all the condition for saving the object
+     *
+     * @var array
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected $conditions;
+
+    /**
      * Variable containing the list of the children
      *
      * @var array
@@ -124,6 +134,7 @@ class DatabaseObject
         $this->id         = null;
         $this->distincts  = array();
         $this->fields     = array();
+        $this->conditions = array();
         $this->children   = array();
         
         if (is_null(self::$increments)) {
@@ -134,6 +145,10 @@ class DatabaseObject
         }
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
 
     /**
      * Value setter for the object fields
@@ -305,7 +320,14 @@ class DatabaseObject
      */
     public function save()
     {
-        // ID serach and set
+        // Conditions verification
+        foreach ($this->conditions as $condition) {
+            if (!$this->checkCondition($condition)) {
+                return false;
+            }
+        }
+
+        // ID search and set
         $flgInsert = true;
         if (!is_null($this->id)) {
             $serialize = $this->serialize();
@@ -350,9 +372,9 @@ class DatabaseObject
                 $child->object->$childField = $this->$parentField;
             }
 
-            $child->object->save();
+            $save = $child->object->save();
 
-            if ($child->link == 'out') {
+            if ($save && $child->link == 'out') {
                 $link = new DatabaseObject('link', $this->database, $child->table);
 
                 $tField          = $child->tField;
@@ -366,8 +388,86 @@ class DatabaseObject
                 $link->save();
             }
         }
+        return true;
 
     }
+
+    public function addConditionValue($field, $accept, $refuse)
+    {
+        $condition = new StdClass();
+
+        $condition->type   = 'value';
+        $condition->field  = $field;
+        $condition->accept = $accept;
+        $condition->refuse = $refuse;
+
+        $this->conditions[] = $condition;
+    }
+
+    public function addConditionChild($child, $field, $accept, $refuse, $min, $max)
+    {
+        $condition = new StdClass();
+
+        $condition->type   = 'children';
+        $condition->child  = $child;
+        $condition->field  = $field;
+        $condition->accept = $accept;
+        $condition->refuse = $refuse;
+        $condition->min    = $min;
+        $condition->max    = $max;
+
+        $this->conditions[] = $condition;
+    }
+
+    public function checkConditionValue($condition)
+    {
+        $field  = $condition->field;
+        $accept = $condition->accept;
+        $refuse = $condition->refuse;
+
+        if (count($accept) && !in_array($this->$field, $accept)) {
+            return false;
+        }
+        if (count($refuse) && in_array($this->$field, $refuse)) {
+            return false;
+        }
+        return true;
+    }
+
+    protected function checkCondition($condition)
+    {
+        if ($condition->type == 'value') {
+            if (!$this->checkConditionValue($condition)) {
+                return false;
+            }
+        } else if ($condition->type == 'children') {
+            $flgCount = 0;
+            foreach ($this->children as $child) {
+                if (!is_null($condition->field)) {
+                    if ($child->object->checkConditionValue($condition)) {
+                        $flgCount++;
+                    }
+                } else {
+                    if ($child->getName == $condition->child) {
+                        $flgCount++;
+                    }
+                }
+                if ($child->object->checkCondition($condition)) {
+                    return true;
+                }
+            }
+            $min = is_null($condition->min) ? 1 : $condition->min;
+            $unbounded = count($this->children);
+            $max = is_null($condition->max) ? $unbounded : $condition->max;
+            if ($flgCount < $min || $flgCount > $max) {
+                return false;
+            }
+        } else {
+            throw new Exception('Unknow condition');
+        }
+        return true;
+    }
+
 
 }
 

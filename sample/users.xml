@@ -22,7 +22,7 @@
             <profil code="profil4" />
             <profil code="profil3" />
         </role>
-        <role code="role2" label="Role N° 2" status="C">
+        <role code="role2" label="Role N° 2" status="A">
             <profil code="profil7" />
             <profil code="profil9" />
             <profil code="profil3" />
@@ -32,7 +32,7 @@
             <profil code="profil2" />
             <profil code="profil6" />
         </role>
-        <role code="role4" label="Role N° 4" status="A">
+        <role code="role4" label="Role N° 4" status="S">
             <profil code="profil1" />
             <profil code="profil6" />
             <profil code="profil3" />

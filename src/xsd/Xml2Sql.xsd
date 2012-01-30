@@ -146,6 +146,8 @@
             <xs:element name="object-create" type="objectCreateType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-distinct" type="objectDistinctType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-id" type="objectIdType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="object-filter-children" type="objectFilterChildrenType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="object-filter-value" type="objectFilterValueType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-save" type="objectSaveType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-index" type="objectValueIndexType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-xml" type="objectValueXmlType" minOccurs="0" maxOccurs="unbounded" />
@@ -205,6 +207,25 @@
     <xs:complexType name="objectIdType">
         <xs:attribute name="name" type="xs:string" use="required" />
         <xs:attribute name="field" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- OBJECT FILTER CHILDREN -->
+    <xs:complexType name="objectFilterChildrenType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="child" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="optional" />
+        <xs:attribute name="accept" type="xs:string" use="optional" />
+        <xs:attribute name="refuse" type="xs:string" use="optional" />
+        <xs:attribute name="minOccurs" type="xs:string" use="optional" default="1" />
+        <xs:attribute name="maxOccurs" type="xs:string" use="optional" default="unbounded" />
+    </xs:complexType>
+
+    <!-- OBJECT FILTER VALUE -->
+    <xs:complexType name="objectFilterValueType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="accept" type="xs:string" use="optional" />
+        <xs:attribute name="refuse" type="xs:string" use="optional" />
     </xs:complexType>
 
     <!-- OBJECT SAVE -->
