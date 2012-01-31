@@ -100,8 +100,7 @@ class XmlParser
      *
      * This function validate the DOMDocument with an XSD file
      *
-     * @param string $path XML File path
-     * @param string $xsd  XSD File Path
+     * @param string $xsd XSD File Path
      *
      * @return void
      *

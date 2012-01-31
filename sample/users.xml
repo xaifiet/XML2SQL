@@ -15,6 +15,11 @@
                 <role code="role5" />
             </roles>
         </user>
+        <user id="3" login="user3" firstname="Jack" lastname="Uzi">
+            <roles>
+                <role code="role7" />
+            </roles>
+        </user>
     </users>
     <roles>
         <role code="role1" label="Role N° 1" status="A">

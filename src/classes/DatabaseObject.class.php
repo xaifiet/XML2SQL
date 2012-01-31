@@ -118,6 +118,7 @@ class DatabaseObject
      * - The list of increments (if not alreadey initiated)
      * - The list of fields
      *
+     * @param string $name     Name of the object
      * @param string $database Name of the database
      * @param string $table    Name of the SQL table
      *
@@ -145,6 +146,16 @@ class DatabaseObject
         }
     }
 
+    /**
+     * Object name getter function
+     *
+     * This function return the name of the current object
+     *
+     * @return string Object Name
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function getName()
     {
         return $this->name;
@@ -224,6 +235,18 @@ class DatabaseObject
         }
     }
 
+    /**
+     * Add child function
+     *
+     * This function add a new child with no link
+     *
+     * @param DatabaseObject $obj Child object
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function addChild($obj)
     {
         $child = new StdClass();
@@ -244,7 +267,7 @@ class DatabaseObject
      * Those links are declared with this function
      * An id must have been set to declare a link by using setID() function
      *
-     * @param StdClass $object   Object of the child
+     * @param StdClass $obj      Object of the child
      * @param string   $table    Name of the foreign table
      * @param string   $field    Name of the object ID in foreign table
      * @param string   $foreign  Name of the foreign field on foreign table
@@ -270,7 +293,21 @@ class DatabaseObject
 
         $this->children[] = $child;
     }
-    
+
+    /**
+     * Add link child function
+     *
+     * This function add a child with link in this child into the object
+     *
+     * @param DatabaseObject $obj         Child object
+     * @param string         $parentField Parent field name
+     * @param string         $childField  Child field name
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function addLinkInChild($obj, $parentField, $childField)
     {
         $child = new StdClass();
@@ -392,6 +429,21 @@ class DatabaseObject
 
     }
 
+    /**
+     * Add Condition value function
+     *
+     * This function add a condition on a value. This condition will be verify before
+     * saving the object
+     *
+     * @param string $field  Field name
+     * @param array  $accept List of accepted values
+     * @param array  $refuse List of refused values
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function addConditionValue($field, $accept, $refuse)
     {
         $condition = new StdClass();
@@ -404,6 +456,24 @@ class DatabaseObject
         $this->conditions[] = $condition;
     }
 
+    /**
+     * Add condition child function
+     *
+     * This function add a child condition. This condition will be verify before
+     * saving the object
+     *
+     * @param string $child  Child name
+     * @param string $field  Field name
+     * @param array  $accept List of accepted values
+     * @param array  $refuse List of refused values
+     * @param string $min    Min child match
+     * @param string $max    Max child match
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function addConditionChild($child, $field, $accept, $refuse, $min, $max)
     {
         $condition = new StdClass();
@@ -419,6 +489,18 @@ class DatabaseObject
         $this->conditions[] = $condition;
     }
 
+    /**
+     * Check condition value function
+     *
+     * This function check a value condition
+     *
+     * @param StdClass $condition Condition
+     *
+     * @return boolean True if OK, False if KO
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     public function checkConditionValue($condition)
     {
         $field  = $condition->field;
@@ -434,6 +516,18 @@ class DatabaseObject
         return true;
     }
 
+    /**
+     * Check condition child function
+     *
+     * This function check a child condition
+     *
+     * @param StdClass $condition Condition
+     *
+     * @return boolean True if OK, False if KO
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function checkCondition($condition)
     {
         if ($condition->type == 'value') {

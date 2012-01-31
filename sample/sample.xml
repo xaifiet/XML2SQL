@@ -33,7 +33,7 @@
             <object-value-xml name="user" field="login" xpath="@login" />
             <object-value-xml name="user" field="firstname" xpath="@firstname" />
             <object-value-xml name="user" field="lastname" xpath="@lastname" />
-            <object-filter-value name="user" field="lastname" refuse="Hochon" />
+            <!--object-filter-value name="user" field="lastname" refuse="Hochon" /-->
             <xml-loop xpath="roles/role">
                 <index-loop index="roles" use="@code">
                     <object-create name="role" database="sample1" table="roles" />
@@ -50,7 +50,8 @@
                     <object-attach-linkin parent="user" child="role" parentfield="iduser" childfield="iduser" />
                 </index-loop>
             </xml-loop>
-            <object-filter-children name="user" child="role" field="status" accept="A-Active" minOccurs="1" />
+            <!--object-filter-children name="user" child="role" field="status" accept="A-Active" minOccurs="1" /-->
+            <!--object-filter-children name="user" child="role" minOccurs="1" /-->
             <object-save name="user" />
         </translation>
     </translations>

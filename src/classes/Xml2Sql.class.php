@@ -33,14 +33,44 @@
 class Xml2Sql
 {
 
+    /**
+     * Variable containing XmlParser instance for translation configuration file
+     *
+     * @var XmlParser
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected $trans;
 
+    /**
+     * Variable containing the XmlParserHandlers instance for all the XML sources
+     *
+     * @var XmlParserHandlers
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected $files;
 
+    /**
+     * Variable containing the list of the currents objects of translation
+     *
+     * @var StdClass
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected $objects;
-    
+
+    /**
+     * Variable containing the list of translation indexes
+     *
+     * @var StdClass
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected $indexes;
-    
+
+    /**
+     * Variable containing the list of translation rules
+     *
+     * @var XmlParser
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected $rules;
 
     /**
@@ -105,7 +135,7 @@ class Xml2Sql
         }
 
         // Table truncates
-        $truncs = $this->trans->getXPathElements( '/xml/truncates/truncate');
+        $truncs = $this->trans->getXPathElements('/xml/truncates/truncate');
         foreach ($truncs as $trunc) {
             $tag = $this->trans->getTag($trunc);
             $dbh->deleteSQL($tag->attributes->database, $tag->attributes->table);
@@ -133,19 +163,57 @@ class Xml2Sql
             $this->callActionFunc($trad, false, false);
         }
 
-        unset($this->files);
-        
         // Databases commit
         $dbh->commit();
     }
 
     /**
-     * Fonction d'appel aux fonction d'action sur les balises
+     * Current objects getter function
      *
-     * Cette fonction est appelée pour chaque ligne du fichier xml de conversion
-     * Le nom de la balise est utilisé pour appeler la fonction d'action.
-     * La fonction d'action est constituée du nom de la balise sans les '-' suivi du
-     * mot 'Action'
+     * This function search a current object by his name and return it. If not object
+     * is available for the name the script will be stopped with a status 1.
+     *
+     * @param string $name Name of the object
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected function &getObject($name)
+    {
+        if (!isset($this->objects->$name)) {
+            echo 'Object '.$name.' already exists'.chr(10);
+            exit(1);
+        }
+
+        return $this->objects->$name;
+    }
+
+    /**
+     * Current objects unsetter function
+     *
+     * This function unset a current object by his name
+     *
+     * @param string $name Name of the object
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected function unsetObject($name)
+    {
+        if (isset($this->objects->$name)) {
+            unset($this->objects->$name);
+        }
+    }
+
+    /**
+     * Translation action call
+     *
+     * This function call the function for the translations. The current tag is 
+     * instanciate in a XmlTag object to get the action.
      *
      * @param DOMElement $element Translation current tag element
      * @param string     $fname   XML file name
@@ -159,15 +227,31 @@ class Xml2Sql
     protected function callActionFunc($element, $fname, $node)
     {
         $tag = $this->trans->getTag($element);
+
         $func = str_replace('-', '', $tag->name).'Action';
+
         if (!(method_exists($this, $func))) {
-            throw new Exception($tag->name.' action is not implement');
+            echo 'Action '.$tag->name.' is not implement';
+            exit(1);
         } else {
             $res = $this->$func($tag, $fname, $node);
         }
     }
 
-
+    /**
+     * Translation action function
+     *
+     * This function start a new translation
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function translationAction($tag, $fname, $node)
     {
         $translation = $tag->attributes->name;
@@ -190,6 +274,21 @@ class Xml2Sql
         }
     }
 
+    /**
+     * Object creation action function
+     *
+     * This function create a new object for the given name. If the an object already
+     * exists for this name, the function will display an error an exit the script
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectcreateAction($tag, $fname, $node)
     {
         $objName = $tag->attributes->name;
@@ -197,36 +296,77 @@ class Xml2Sql
         $table   = $tag->attributes->table;
 
         if (isset($this->objects->$objName)) {
-            throw new Exception('Object name already exist');
+            echo 'Object '.$objNname.' already exist';
+            exit(1);
         }
         $this->objects->$objName = new DatabaseObject($objName, $dbname, $table);
     }
 
+    /**
+     * Object xml value action function
+     *
+     * This function add a value to an object by search in current node
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectvaluexmlAction($tag, $fname, $node)
     {
         $objName = $tag->attributes->name;
         $field   = $tag->attributes->field;
         $xpath   = $tag->attributes->xpath;
-        
-        if (!isset($this->objects->$objName)) {
-            throw new Exception('No object defined for this name');
-        }
+
+        $object = &$this->getObject($objName);
+
         $value = $this->files->getXPathValue($fname, $xpath, $node);
         $this->objects->$objName->$field = $value;
     }
 
+    /**
+     * Object save action function
+     *
+     * This function save an object
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectsaveAction($tag, $fname, $node)
     {
         $objName = $tag->attributes->name;
 
-        if (!isset($this->objects->$objName)) {
-            throw new Exception('No object defined for this name');
-        }
+        $object = &$this->getObject($objName);
 
-        $this->objects->$objName->save();
-        unset($this->objects->$objName);
+        $object->save();
+        $this->unsetObject($objName);
     }
 
+    /**
+     * Xml loop action function
+     *
+     * This function search for all matching xpath in current node and apply sub-tags
+     * of translation for each match.
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function xmlloopAction($tag, $fname, $node)
     {
         $xpath = $tag->attributes->xpath;
@@ -241,33 +381,72 @@ class Xml2Sql
             }
         }
     }
-    
+
+    /**
+     * Object ID action function
+     *
+     * This function create an ID for an object
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectidAction($tag, $fname, $node)
     {
         $objName = $tag->attributes->name;
         $field   = $tag->attributes->field;
 
-        if (!isset($this->objects->$objName)) {
-            throw new Exception('No object defined for this name');
-        }
-        
-        $this->objects->$objName->setID($field);
+        $object = &$this->getObject($objName);
+
+        $object->setID($field);
     }
-    
+
+    /**
+     * Object distinct action function
+     *
+     * This function define distincts values of an object to define if the script
+     * will insert or update the database
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectdistinctAction($tag, $fname, $node)
     {
         $objName = $tag->attributes->name;
         $fields  = $tag->attributes->fields;
 
-        if (!isset($this->objects->$objName)) {
-            throw new Exception('No object defined for this name');
-        }
-        
+        $object = &$this->getObject($objName);
+
         foreach (explode(',', $fields) as $field) {
-            $this->objects->$objName->addDistinct($field);
+            $object->addDistinct($field);
         }
     }
 
+    /**
+     * Object attach link action function
+     *
+     * This function link two objects with a middle table
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectattachlinkAction($tag, $fname, $node)
     {
         $parentName  = $tag->attributes->parent;
@@ -285,18 +464,32 @@ class Xml2Sql
         } else {
             $linkChildField = $childField;
         }
-        
-        $parentObj = $this->objects->$parentName;
-        $childObj  = $this->objects->$childName;
-        
+
+        $parentObj = &$this->getObject($parentName);
+        $childObj = &$this->getObject($childName);
+
         $parentObj->addLinkChild(
             $childObj, $table, $parentField, $childField,
             $linkParentField, $linkChildField
         );
         
-        unset($this->objects->$childName);
+        $this->unsetObject($childName);
     }
 
+    /**
+     * Object attach link in action function
+     *
+     * This function link two object with a parent object value in the child
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectattachlinkinAction($tag, $fname, $node)
     {
         $parentName      = $tag->attributes->parent;
@@ -304,28 +497,56 @@ class Xml2Sql
         $childName       = $tag->attributes->child;
         $childField      = $tag->attributes->childfield;
 
-        $parentObj = $this->objects->$parentName;
-        $childObj  = $this->objects->$childName;
+        $parentObj = &$this->getObject($parentName);
+        $childObj = &$this->getObject($childName);
 
         $parentObj->addLinkInChild($childObj, $parentField, $childField);
 
-        unset($this->objects->$childName);
+        $this->unsetObject($childName);
     }
 
+    /**
+     * Object attach action function
+     *
+     * This function attach two object
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectattachAction($tag, $fname, $node)
     {
         $parentName      = $tag->attributes->parent;
         $childName       = $tag->attributes->child;
 
-        $parentObj = $this->objects->$parentName;
-        $childObj  = $this->objects->$childName;
-        
+        $parentObj = &$this->getObject($parentName);
+        $childObj = &$this->getObject($childName);
+
         $parentObj->addChild($childObj);
-        
-        unset($this->objects->$childName);
+
+        $this->unsetObject($childName);
 
     }
-    
+
+    /**
+     * Object value index action function
+     *
+     * This function search a value in an index from an xml value
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectvalueindexAction($tag, $fname, $node)
     {
         $name  = $tag->attributes->name;
@@ -333,29 +554,41 @@ class Xml2Sql
         $index = $tag->attributes->index;
         $use   = $tag->attributes->use;
         $xpath = $tag->attributes->xpath;
-        
-        if (!isset($this->objects->$name)) {
-            throw new Exception('No object found');
+
+        $object = &$this->getObject($name);
+
+        $value = null;
+        if (isset($this->indexes->$index)) {
+            $id = $this->files->getXPathValue($fname, $use, $node);
+            if (isset($this->indexes->$index->indexes->$id)) {
+                $indexFile = $this->indexes->$index->fname;
+                $indexNode = $this->indexes->$index->indexes->$id;
+                $value = $this->files->getXPathValue($indexFile, $xpath, $indexNode);
+
+                if (isset($tag->attributes->rule)) {
+                    $rule  = $tag->attributes->rule;
+                    $value = $this->rules->$rule->$value;
+                }
+            }
         }
-        if (!isset($this->indexes->$index)) {
-            throw new Exception('No index found');
-        }
-        $id = $this->files->getXPathValue($fname, $use, $node);
-        if (!isset($this->indexes->$index->indexes->$id)) {
-            throw new Exception('No index id found');
-        }
-        $indexFile = $this->indexes->$index->fname;
-        $indexNode = $this->indexes->$index->indexes->$id;
-        $value = $this->files->getXPathValue($indexFile, $xpath, $indexNode);
-        
-        if (isset($tag->attributes->rule)) {
-            $rule  = $tag->attributes->rule;
-            $value = $this->rules->$rule->$value;
-        }
-        
-        $this->objects->$name->$field = $value;
+
+        $object->$field = $value;
     }
-    
+
+    /**
+     * Index loop action function
+     *
+     * This function will loop on index content by his ID
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function indexloopAction($tag, $fname, $node)
     {
         $index = $tag->attributes->index;
@@ -363,18 +596,30 @@ class Xml2Sql
 
         $id = $this->files->getXPathValue($fname, $use, $node);
         
-        if (!isset($this->indexes->$index->indexes->$id)) {
-            throw new Exception('No index id found');
-        }
+        if (isset($this->indexes->$index->indexes->$id)) {
+            $indexFile = $this->indexes->$index->fname;
+            $indexNode = $this->indexes->$index->indexes->$id;
 
-        $indexFile = $this->indexes->$index->fname;
-        $indexNode = $this->indexes->$index->indexes->$id;
-
-        foreach ($tag->getChildren() as $child) {
-            $this->callActionFunc($child, $indexFile, $indexNode);
+            foreach ($tag->getChildren() as $child) {
+                $this->callActionFunc($child, $indexFile, $indexNode);
+            }
         }
     }
 
+    /**
+     * Object value object action function
+     *
+     * This function search a value from an other current object fields
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectvalueobjectAction($tag, $fname, $node)
     {
         $name   = $tag->attributes->name;
@@ -382,17 +627,27 @@ class Xml2Sql
         $object = $tag->attributes->object;
         $use    = $tag->attributes->use;
 
-        if (!isset($this->objects->$name)) {
-            throw new Exception('No object found');
-        }
-        if (!isset($this->objects->$object)) {
-            throw new Exception('No object found');
-        }
-        
-        $this->objects->$name->$field = $this->objects->$object->$use;
+        $object = &$this->getObject($name);
+        $other  = &$this->getObject($object);
 
+        $object->$field = $other->$use;
     }
 
+    /**
+     * Object filter value action function
+     *
+     * This function add a filter for an object. This filter will be apply on save
+     * action.
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectfiltervalueAction($tag, $fname, $node)
     {
         $name   = $tag->attributes->name;
@@ -408,18 +663,37 @@ class Xml2Sql
             $refuse = array();
         }
 
-        if (!isset($this->objects->$name)) {
-            throw new Exception('No object found');
-        }
+        $object = &$this->getObject($name);
 
-        $this->objects->$name->addConditionValue($field, $accept, $refuse);
+        $object->addConditionValue($field, $accept, $refuse);
     }
-    
+
+    /**
+     * Object filter children action function
+     *
+     * This function add a filter on object children. This filter can be on
+     * : Children values
+     * : Children names
+     * : Number of matching children
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectfilterchildrenAction($tag, $fname, $node)
     {
         $name   = $tag->attributes->name;
         $child  = $tag->attributes->child;
-        $field  = $tag->attributes->field;
+        if (isset($tag->attributes->field)) {
+            $field = explode(',', $tag->attributes->field);
+        } else {
+            $field = array();
+        }
         if (isset($tag->attributes->accept)) {
             $accept = explode(',', $tag->attributes->accept);
         } else {
@@ -441,13 +715,9 @@ class Xml2Sql
             $max = null;
         }
 
-        if (!isset($this->objects->$name)) {
-            throw new Exception('No object found');
-        }
+        $object = &$this->getObject($name);
 
-        $this->objects->$name->addConditionChild(
-            $child, $field, $accept, $refuse, $min, $max
-        );
+        $object->addConditionChild($child, $field, $accept, $refuse, $min, $max);
     }
 
 }
