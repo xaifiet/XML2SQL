@@ -321,10 +321,19 @@ class Xml2Sql
         $objName = $tag->attributes->name;
         $field   = $tag->attributes->field;
         $xpath   = $tag->attributes->xpath;
+        if (isset($tag->attributes->require)) {
+            $require = $tag->attributes->require;
+        } else {
+            $require = false;
+        }
 
         $object = &$this->getObject($objName);
 
         $value = $this->files->getXPathValue($fname, $xpath, $node);
+        if ($require == "true" && $value === false) {
+            echo 'Require value not found for '.$objName.'->'.$field.chr(10);
+            exit(1);
+        }
         $this->objects->$objName->$field = $value;
     }
 
@@ -554,6 +563,11 @@ class Xml2Sql
         $index = $tag->attributes->index;
         $use   = $tag->attributes->use;
         $xpath = $tag->attributes->xpath;
+        if (isset($tag->attributes->require)) {
+            $require = $tag->attributes->require;
+        } else {
+            $require = false;
+        }
 
         $object = &$this->getObject($name);
 
@@ -570,6 +584,11 @@ class Xml2Sql
                     $value = $this->rules->$rule->$value;
                 }
             }
+        }
+
+        if ($require == "true" && is_null($value)) {
+            echo 'Require value not found for '.$name.'->'.$field.chr(10);
+            exit(1);
         }
 
         $object->$field = $value;
@@ -624,11 +643,21 @@ class Xml2Sql
     {
         $name   = $tag->attributes->name;
         $field  = $tag->attributes->field;
-        $object = $tag->attributes->object;
+        $source = $tag->attributes->source;
         $use    = $tag->attributes->use;
+        if (isset($tag->attributes->require)) {
+            $require = $tag->attributes->require;
+        } else {
+            $require = false;
+        }
 
         $object = &$this->getObject($name);
-        $other  = &$this->getObject($object);
+        $other  = &$this->getObject($source);
+
+        if ($require == "true" && $other->$use == false) {
+            echo 'Require value not found for '.$name.'->'.$field.chr(10);
+            exit(1);
+        }
 
         $object->$field = $other->$use;
     }
@@ -687,13 +716,9 @@ class Xml2Sql
      */
     protected function objectfilterchildrenAction($tag, $fname, $node)
     {
-        $name   = $tag->attributes->name;
-        $child  = $tag->attributes->child;
-        if (isset($tag->attributes->field)) {
-            $field = explode(',', $tag->attributes->field);
-        } else {
-            $field = array();
-        }
+        $name  = $tag->attributes->name;
+        $child = $tag->attributes->child;
+        $field = $tag->attributes->field;
         if (isset($tag->attributes->accept)) {
             $accept = explode(',', $tag->attributes->accept);
         } else {

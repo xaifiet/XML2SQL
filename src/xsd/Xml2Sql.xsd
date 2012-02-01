@@ -150,6 +150,7 @@
             <xs:element name="object-filter-value" type="objectFilterValueType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-save" type="objectSaveType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-index" type="objectValueIndexType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="object-value-object" type="objectValueObjectType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-xml" type="objectValueXmlType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="xml-loop" type="xmlLoopType" minOccurs="0" maxOccurs="unbounded" />
         </xs:choice>
@@ -233,6 +234,15 @@
         <xs:attribute name="name" type="xs:string" use="required" />
     </xs:complexType>
 
+    <!-- OBJECT VALUE OBJECT -->
+    <xs:complexType name="objectValueObjectType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="source" type="xs:string" use="required" />
+        <xs:attribute name="use" type="xs:string" use="required" />
+        <xs:attribute name="require" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
+
     <!-- OBJECT VALUE INDEX -->
     <xs:complexType name="objectValueIndexType">
         <xs:attribute name="name" type="xs:string" use="required" />
@@ -241,6 +251,7 @@
         <xs:attribute name="use" type="xs:string" use="required" />
         <xs:attribute name="xpath" type="xs:string" use="required" />
         <xs:attribute name="rule" type="xs:string" use="optional" />
+        <xs:attribute name="require" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
 
     <!-- OBJECT VALUE XML -->
@@ -248,6 +259,7 @@
         <xs:attribute name="name" type="xs:string" use="required" />
         <xs:attribute name="field" type="xs:string" use="required" />
         <xs:attribute name="xpath" type="xs:string" use="required" />
+        <xs:attribute name="require" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
 
     <!-- XML LOOP -->
