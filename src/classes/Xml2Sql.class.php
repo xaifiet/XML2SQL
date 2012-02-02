@@ -773,6 +773,29 @@ class Xml2Sql
         $object->addConditionChild($child, $field, $accept, $refuse, $min, $max);
     }
 
+    protected function objectvaluecryptAction($tag, $fname, $node)
+    {
+        $name      = $tag->attributes->name;
+        $field     = $tag->attributes->field;
+        $algorithm = $tag->attributes->algorithm;
+
+        $object = &$this->getObject($name);
+        if (is_null($object->$field)) {
+            return false;
+        }
+
+        switch ($algorithm) {
+            case 'sha1':
+                $value = sha1($object->$field);
+                break;
+            case 'md5':
+                $value = md5($object->$field);
+                break;
+        };
+
+        $object->$field = $value;
+    }
+
 }
 
 ?>

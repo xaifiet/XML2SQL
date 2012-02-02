@@ -30,9 +30,11 @@
         <translation name="Sample" file="users" xpath="/xml/users/user">
             <object-create name="user" database="sample1" table="users" />
             <object-value-xml name="user" field="iduser" xpath="@id" />
-            <object-value-xml name="user" field="login" xpath="@login" />
+            <object-value-xml name="user" field="login" xpath="@login" require="true" />
             <object-value-xml name="user" field="firstname" xpath="@firstname" />
-            <object-value-xml name="user" field="lastname" xpath="@lastname" require="true" />
+            <object-value-xml name="user" field="lastname" xpath="@lastname" />
+            <object-value-xml name="user" field="password" xpath="@password" />
+            <object-value-crypt name="user" field="password" algorithm="sha1" />
             <xml-loop xpath="roles/role">
                 <index-loop index="roles" use="@code">
                     <object-create name="role" database="sample1" table="roles" />

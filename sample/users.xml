@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <xml>
     <users>
-        <user id="1" login="user1" firstname="Jean" lastname="Bombeur">
+        <user id="1" login="user1" firstname="Jean" lastname="Bombeur" password="xxx">
             <roles>
                 <role code="role1" />
                 <role code="role3" />
@@ -9,13 +9,13 @@
                 <role code="role6" />
             </roles>
         </user>
-        <user id="2" login="user2" firstname="Paul" lastname="Hochon">
+        <user id="2" login="user2" firstname="Paul" lastname="Hochon" password="xxx">
             <roles>
                 <role code="role2" />
                 <role code="role5" />
             </roles>
         </user>
-        <user id="3" login="user3" firstname="Jack" lastname="Uzi">
+        <user id="3" login="user3" firstname="Jack" lastname="Uzi" password="xxx">
             <roles>
                 <role code="role7" />
             </roles>

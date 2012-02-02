@@ -149,6 +149,7 @@
             <xs:element name="object-filter-children" type="objectFilterChildrenType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-filter-value" type="objectFilterValueType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-save" type="objectSaveType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="object-value-crypt" type="objectValueCryptType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-index" type="objectValueIndexType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-object" type="objectValueObjectType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-user" type="objectValueUserType" minOccurs="0" maxOccurs="unbounded" />
@@ -233,6 +234,20 @@
     <!-- OBJECT SAVE -->
     <xs:complexType name="objectSaveType">
         <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- OBJECT VALUE CRYPT -->
+    <xs:complexType name="objectValueCryptType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="algorithm" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="sha1" />
+                    <xs:enumeration value="md5" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <!-- OBJECT VALUE OBJECT -->
