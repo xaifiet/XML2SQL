@@ -539,7 +539,6 @@ class Xml2Sql
         $parentObj->addChild($childObj);
 
         $this->unsetObject($childName);
-
     }
 
     /**
@@ -663,6 +662,31 @@ class Xml2Sql
     }
 
     /**
+     * Object value user action function
+     *
+     * This function define a user value to a object field
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected function objectvalueuserAction($tag, $fname, $node)
+    {
+        $name   = $tag->attributes->name;
+        $field  = $tag->attributes->field;
+        $value = $tag->attributes->value;
+
+        $object = &$this->getObject($name);
+
+        $object->$field = $value;
+    }
+
+    /**
      * Object filter value action function
      *
      * This function add a filter for an object. This filter will be apply on save
@@ -718,7 +742,11 @@ class Xml2Sql
     {
         $name  = $tag->attributes->name;
         $child = $tag->attributes->child;
-        $field = $tag->attributes->field;
+        if (isset($tag->attributes->field)) {
+            $field = $tag->attributes->field;
+        } else {
+            $field = null;
+        }
         if (isset($tag->attributes->accept)) {
             $accept = explode(',', $tag->attributes->accept);
         } else {

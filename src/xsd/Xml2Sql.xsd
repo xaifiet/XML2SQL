@@ -151,6 +151,7 @@
             <xs:element name="object-save" type="objectSaveType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-index" type="objectValueIndexType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-object" type="objectValueObjectType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="object-value-user" type="objectValueUserType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="object-value-xml" type="objectValueXmlType" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="xml-loop" type="xmlLoopType" minOccurs="0" maxOccurs="unbounded" />
         </xs:choice>
@@ -252,6 +253,13 @@
         <xs:attribute name="xpath" type="xs:string" use="required" />
         <xs:attribute name="rule" type="xs:string" use="optional" />
         <xs:attribute name="require" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
+
+    <!-- OBJECT VALUE USER -->
+    <xs:complexType name="objectValueUserType">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="field" type="xs:string" use="required" />
+        <xs:attribute name="value" type="xs:string" use="required" />
     </xs:complexType>
 
     <!-- OBJECT VALUE XML -->

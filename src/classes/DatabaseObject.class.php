@@ -133,8 +133,8 @@ class DatabaseObject
         $this->database   = $database;
         $this->table      = $table;
         $this->id         = null;
-        $this->distincts  = array();
-        $this->fields     = array();
+        $this->distincts  = new StdClass();
+        $this->fields     = new StdClass();
         $this->conditions = array();
         $this->children   = array();
         
@@ -142,7 +142,9 @@ class DatabaseObject
             self::$increments = new StdClass();
         }
         if (!isset(self::$increments->$name)) {
-            self::$increments->$name = array();
+            self::$increments->$name          = new StdClass();
+            self::$increments->$name->current = 0;
+            self::$increments->$name->ids     = new StdClass();
         }
     }
 
@@ -176,7 +178,7 @@ class DatabaseObject
      */
     public function __set($name, $value)
     {
-        $this->fields[$name] = $value;
+        $this->fields->$name = $value;
     }
 
     /**
@@ -193,8 +195,8 @@ class DatabaseObject
      */
     public function __get($name)
     {
-        if (isset($this->fields[$name])) {
-            return $this->fields[$name];
+        if (isset($this->fields->$name)) {
+            return $this->fields->$name;
         }
         return null;
     }
@@ -230,8 +232,8 @@ class DatabaseObject
      */
     public function addDistinct($field)
     {
-        if (!in_array($field, $this->distincts)) {
-            $this->distincts[$field] = "";
+        if (!isset($this->distincts->$field)) {
+            $this->distincts->$field = null;
         }
     }
 
@@ -335,7 +337,8 @@ class DatabaseObject
     protected function serialize()
     {
         $tmp = array();
-        foreach ($this->fields as $key => $value) {
+        $fields = get_object_vars($this->fields);
+        foreach ($fields as $key => $value) {
             $tmp[] = $key.'$§£'.$value;
         }
         ksort($tmp);
@@ -356,7 +359,7 @@ class DatabaseObject
      * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
      */
     public function save()
-    {
+    {    
         // Conditions verification
         foreach ($this->conditions as $condition) {
             if (!$this->checkCondition($condition)) {
@@ -367,27 +370,24 @@ class DatabaseObject
         // ID search and set
         $flgInsert = true;
         if (!is_null($this->id)) {
-            $serialize = $this->serialize();
-            $objName = $this->name;
-            $count = 0;
-            foreach (self::$increments->$objName as $serial) {
-                if ($serialize == $serial) {
-                    $this->fields[$this->id] = $count;
-                    $flgInsert = false;
-                }
-                $count++;
+            $idfield = $this->id;
+            $serial = $this->serialize();
+            $name = $this->name;
+            if (isset(self::$increments->$name->ids->$serial)) {
+                $flgInsert = false;
+            } else {
+                $id = self::$increments->$name->current++;
+                self::$increments->$name->ids->$serial = $id;
             }
-            if ($flgInsert) {
-                $this->fields[$this->id] = $count;
-                array_push(self::$increments->$objName, $serialize);
-            }
+            $this->fields->$idfield = self::$increments->$name->ids->$serial;
         }
 
         if ($flgInsert) {
             // Distincts getter from fields
-            foreach ($this->distincts as $key => $distinct) {
-                if (isset($this->fields[$key])) {
-                    $this->distincts[$key] = $this->fields[$key];
+            $distincts = get_object_vars($this->distincts);
+            foreach ($distincts as $field => &$distinct) {
+                if (isset($this->fields->$field)) {
+                    $distinct = $this->fields->$field;
                 } else {
                     throw new Exception('No field for this distinct');
                 }
@@ -395,9 +395,9 @@ class DatabaseObject
 
             // Database insertion or update
             $dbh = DatabaseHandlers::getInstance();
+            $fields = get_object_vars($this->fields);
             $dbh->insupSQL(
-                $this->database, 'both', $this->table,
-                $this->fields, $this->distincts
+                $this->database, 'both', $this->table, $fields, $distincts
             );
         }
 
@@ -417,11 +417,13 @@ class DatabaseObject
                 $tField          = $child->tField;
                 $field           = $child->field;
                 $link->$tField   = $this->$field;
+                $link->addDistinct($tField);
 
                 $tForeign        = $child->tForeign;
                 $foreign         = $child->foreign;
                 $link->$tForeign = $child->object->$foreign;
-
+                $link->addDistinct($tForeign);
+                
                 $link->save();
             }
         }
@@ -542,7 +544,7 @@ class DatabaseObject
                         $flgCount++;
                     }
                 } else {
-                    if ($child->getName == $condition->child) {
+                    if ($child->object->getName() == $condition->child) {
                         $flgCount++;
                     }
                 }
