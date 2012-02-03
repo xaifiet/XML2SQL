@@ -564,6 +564,34 @@ class DatabaseObject
         return true;
     }
 
+    /**
+     * Children values searcher function
+     *
+     * This function search values from children fields and return them into a array
+     *
+     * @param string $name  Name of the child object
+     * @param string $field Name fo the child field
+     *
+     * @return array List of values
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    public function getChildrenValues($name, $field)
+    {
+        $res = array();
+
+        foreach ($this->children as $child) {
+            $childres = $child->object->getChildrenValues($name, $field);
+            $res = array_merge($res, $childres);
+            if ($child->object->getName() == $name) {
+                $res[] = $child->object->$field;
+            }
+        }
+
+        return array_unique($res);
+    }
+
 
 }
 

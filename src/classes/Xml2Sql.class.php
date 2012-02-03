@@ -773,6 +773,20 @@ class Xml2Sql
         $object->addConditionChild($child, $field, $accept, $refuse, $min, $max);
     }
 
+    /**
+     * Object value crypt action function
+     *
+     * This function crypt a current value in an object
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
     protected function objectvaluecryptAction($tag, $fname, $node)
     {
         $name      = $tag->attributes->name;
@@ -785,15 +799,56 @@ class Xml2Sql
         }
 
         switch ($algorithm) {
-            case 'sha1':
-                $value = sha1($object->$field);
-                break;
-            case 'md5':
-                $value = md5($object->$field);
-                break;
+        case 'sha1':
+            $value = sha1($object->$field);
+            break;
+        case 'md5':
+            $value = md5($object->$field);
+            break;
         };
 
         $object->$field = $value;
+    }
+
+    /**
+     * Object value children action function
+     *
+     * This function search values from children an set the value of the object from
+     * a rule. The define order of rule is used to define the value
+     *
+     * @param XmlTag     $tag   Translation current tag element
+     * @param string     $fname XML file name
+     * @param DOMElement $node  XML file current tag element
+     *
+     * @return void
+     *
+     * @since 0.1
+     * @author Xavier DUBREUIL <xavier.dubreuil@xaifiet.com>
+     */
+    protected function objectvaluechildrenAction($tag, $fname, $node)
+    {
+        $name       = $tag->attributes->name;
+        $field      = $tag->attributes->field;
+        $child      = $tag->attributes->child;
+        $childField = $tag->attributes->childfield;
+        $rule       = $tag->attributes->rule;
+
+        $object = &$this->getObject($name);
+
+        if (!isset($this->rules->$rule)) {
+            echo 'Inexistant rule name '.$rule;
+            exit(1);
+        }
+
+        $values = $object->getChildrenValues($child, $childField);
+
+        $rules = get_object_vars($this->rules->$rule);
+        foreach ($rules as $code => $label) {
+            if (in_array($code, $values)) {
+                $object->$field = $label;
+                break;
+            }
+        }
     }
 
 }

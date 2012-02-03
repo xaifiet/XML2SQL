@@ -25,6 +25,16 @@
             <value code="Close" label="C-Close" />
             <value code="Stanby" label="S-Standby" />
         </rule>
+        <rule name="profil">
+            <value code="Profil N° 8" label="Profil user number 8" />
+            <value code="Profil N° 6" label="Profil user number 6" />
+            <value code="Profil N° 2" label="Profil user number 2" />
+            <value code="Profil N° 4" label="Profil user number 4" />
+            <value code="Profil N° 5" label="Profil user number 5" />
+            <value code="Profil N° 1" label="Profil user number 1" />
+            <value code="Profil N° 3" label="Profil user number 3" />
+            <value code="Profil N° 7" label="Profil user number 7" />
+        </rule>
     </rules>
     <translations>
         <translation name="Sample" file="users" xpath="/xml/users/user">
@@ -51,6 +61,7 @@
                     <object-attach-linkin parent="user" child="role" parentfield="iduser" childfield="iduser" />
                 </index-loop>
             </xml-loop>
+            <object-value-children name="user" field="profil" child="profil" childfield="libelle" rule="profil" />
             <object-filter-children name="user" child="role" field="status" accept="A-Active" minOccurs="1" />
             <object-save name="user" />
         </translation>
